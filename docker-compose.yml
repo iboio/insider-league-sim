@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql
+    restart: always
+    ports:
+      - "4050:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: iboioroot
+      MYSQL_USER: iboio
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - ./storage/mysql:/var/lib/mysql
