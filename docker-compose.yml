@@ -10,6 +10,7 @@ services:
       MYSQL_USER: iboio
       MYSQL_PASSWORD: 1234
     volumes:
+      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d
       - ./storage/mysql:/var/lib/mysql
 
   backend:
