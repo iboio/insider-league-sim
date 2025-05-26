@@ -11,3 +11,13 @@ services:
       MYSQL_PASSWORD: 1234
     volumes:
       - ./storage/mysql:/var/lib/mysql
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
