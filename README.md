@@ -137,6 +137,13 @@ docker-compose up --build
 ```
 
 > Make sure to adjust the `.env` file in the `backend/` folder to match your local setup.
+---
+## ScreenShots
+Login Page - Create New League - Fixtures Tables
+![Screenshot 2](asserts/screenshoot-2.jpg)
+
+Standings - Predictions - Match Results - Edit Results
+![Screenshot 1](asserts/screenshoot-1.jpg)
 
 ---
 
