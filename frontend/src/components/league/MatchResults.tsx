@@ -21,13 +21,6 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Edit, Trophy } from 'lucide-react';
 
 interface MatchResult {
@@ -47,6 +40,7 @@ interface EditMatchData {
     teamOldGoals: number;
     goals: number;
     isDraw: boolean;
+    winner: string;
 }
 
 interface MatchResultsProps {
@@ -60,11 +54,8 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
     const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
     const [editingTeam, setEditingTeam] = useState<'home' | 'away' | null>(null);
     const [newGoals, setNewGoals] = useState('');
-    const [selectedWinner, setSelectedWinner] = useState('');
     const [error, setError] = useState('');
     const [updating, setUpdating] = useState(false);
-
-
 
     const handleEditClick = (match: MatchResult, team: 'home' | 'away') => {
         // Only losing team can edit (in case of draw, both teams can)
@@ -80,7 +71,6 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
         setSelectedMatch(match);
         setEditingTeam(team);
         setNewGoals(team === 'home' ? match.homeScore.toString() : match.awayScore.toString());
-        setSelectedWinner('');
         setError('');
         setEditDialogOpen(true);
     };
@@ -91,19 +81,23 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
         const newGoalsNum = parseInt(newGoals);
         const opponentGoals = editingTeam === 'home' ? selectedMatch.awayScore : selectedMatch.homeScore;
         const oldGoals = editingTeam === 'home' ? selectedMatch.homeScore : selectedMatch.awayScore;
-        const isDraw = selectedMatch.homeScore === selectedMatch.awayScore;
+        const wasOriginallyDraw = selectedMatch.homeScore === selectedMatch.awayScore;
 
-        // Validation: New goal count must be higher than opponent (except draw situation)
-        if (!isDraw && newGoalsNum <= opponentGoals) {
+        // Validation: New goal count must be higher than opponent (except when originally draw)
+        if (!wasOriginallyDraw && newGoalsNum <= opponentGoals) {
             setError('New goal count must be higher than opponent team!');
             return;
         }
 
-        // In draw situation, winner must be selected
-        if (isDraw && newGoalsNum === opponentGoals && !selectedWinner) {
-            setError('Winner team must be selected in draw situation!');
-            return;
+        if (wasOriginallyDraw) {
+            if (newGoalsNum <= opponentGoals) {
+                setError('New goal count must be higher than current draw score to win!');
+                return;
+            }
         }
+
+        const willBeDraw = selectedMatch.awayScore === selectedMatch.homeScore;
+        const winnerTeam = editingTeam === 'home' ? selectedMatch.home : selectedMatch.away;
 
         setUpdating(true);
         setError('');
@@ -116,7 +110,8 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                 againstTeam: editingTeam === 'home' ? selectedMatch.away : selectedMatch.home,
                 teamOldGoals: oldGoals,
                 goals: newGoalsNum,
-                isDraw: newGoalsNum === opponentGoals && !!selectedWinner
+                isDraw: willBeDraw,
+                winner: winnerTeam
             };
 
             if (onMatchUpdate) {
@@ -127,7 +122,6 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
             setSelectedMatch(null);
             setEditingTeam(null);
             setNewGoals('');
-            setSelectedWinner('');
         } catch (error) {
             setError('An error occurred during update!');
             console.error('Error updating match:', error);
@@ -307,13 +301,18 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                     {selectedMatch && editingTeam && (
                         <div className="space-y-4">
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="text-center text-sm text-gray-600 mb-2">Editing Team</div>
-                                <div className="text-center font-bold text-lg">
+                                <div className="text-center text-sm text-gray-600 mb-2">Editing Result For</div>
+                                <div className="text-center font-bold text-lg text-blue-600">
                                     {editingTeam === 'home' ? selectedMatch.home : selectedMatch.away}
                                 </div>
                                 <div className="text-center text-sm text-gray-500 mt-1">
                                     vs {editingTeam === 'home' ? selectedMatch.away : selectedMatch.home}
                                 </div>
+                                {selectedMatch.homeScore === selectedMatch.awayScore && (
+                                    <div className="text-center text-xs text-amber-600 mt-2 font-medium">
+                                        If you set equal scores, this team will be marked as winner
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -330,22 +329,6 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                                     Opponent team: {editingTeam === 'home' ? selectedMatch.awayScore : selectedMatch.homeScore} goals
                                 </div>
                             </div>
-
-                            {/* Winner selection in draw situation */}
-                            {selectedMatch.homeScore === selectedMatch.awayScore && parseInt(newGoals) === (editingTeam === 'home' ? selectedMatch.awayScore : selectedMatch.homeScore) && (
-                                <div>
-                                    <Label>Winner Team</Label>
-                                    <Select value={selectedWinner} onValueChange={setSelectedWinner}>
-                                        <SelectTrigger className="mt-1">
-                                            <SelectValue placeholder="Select winner team" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value={selectedMatch.home}>{selectedMatch.home}</SelectItem>
-                                            <SelectItem value={selectedMatch.away}>{selectedMatch.away}</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
 
                             {error && (
                                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">

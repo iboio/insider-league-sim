@@ -1,12 +1,12 @@
 import axios from 'axios';
-import type { 
+import type {
     LeagueIdWithName,
     SimulationResponse,
     GetActiveLeagueStandingsResponse,
     GetActiveLeagueFixturesResponse,
 } from '../interfaces/dto';
-import type { PredictedStanding } from '../interfaces/league';
-import type { LeagueData } from '../interfaces/full';
+import type {PredictedStanding} from '../interfaces/league';
+import type {LeagueData} from '../interfaces/full';
 import type {EditMatchData} from "@/interfaces/api.ts";
 import type {MatchResult} from "@/interfaces/simulation.ts";
 
@@ -17,7 +17,7 @@ const api = axios.create({
     },
 
 });
-console.log(import.meta.env.VITE_API_URL)
+
 // API functions
 export async function getLeagues(): Promise<LeagueIdWithName[]> {
     try {
@@ -52,19 +52,6 @@ export async function deleteLeague(leagueId: string) {
     }
 }
 
-export async function updateLeague(leagueId: string, teamName: string, points: number) {
-    try {
-        const response = await api.put(`/league/${leagueId}`, {
-            teamName,
-            points
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error updating league:', error);
-        throw error;
-    }
-}
-
 export async function updateMatchResult(leagueId: string, data: EditMatchData) {
     try {
         const response = await api.put(`/league/${leagueId}`, data);
@@ -88,31 +75,30 @@ export async function resetLeague(leagueId: string) {
 export async function getLeagueById(leagueId: string): Promise<LeagueData> {
     try {
         // Get league details
-        const leagueResponse = await api.get(`/league/${leagueId}`);
-        
+
         // Get standings
         const standingsResponse = await api.get<GetActiveLeagueStandingsResponse>(`/league/${leagueId}/standing`);
-        
+
         // Get fixtures
         const fixturesResponse = await api.get<GetActiveLeagueFixturesResponse>(`/league/${leagueId}/fixtures`);
-        
+
         // Get predictions
         const predictionsResponse = await api.get<PredictedStanding[]>(`/league/${leagueId}/predict`);
 
         // Get matches
         const matchResponse = await api.get<MatchResult[]>(`/league/${leagueId}/matchResults`);
-        
+
         return {
+            currentWeek: 0,
+            leagueName: "",
+            teams: [],
+            totalWeeks: 0,
             leagueId: leagueId,
-            leagueName: leagueResponse.data?.leagueName || `League ${leagueId}`,
-            teams: leagueResponse.data?.teams || [],
             standings: standingsResponse.data?.standings || standingsResponse.data || [],
-            totalWeeks: leagueResponse.data?.totalWeeks || 0,
-            currentWeek: leagueResponse.data?.currentWeek || 0,
             upcomingFixtures: fixturesResponse.data?.upcomingFixtures || [],
             playedFixtures: fixturesResponse.data?.playedFixtures || [],
             predict: Array.isArray(predictionsResponse.data) ? predictionsResponse.data : [],
-            matches: matchResponse.data,
+            matches: matchResponse.data
         };
     } catch (error) {
         console.error('Error fetching league:', error);
@@ -126,7 +112,7 @@ export async function simulateMatches(leagueId: string, playAllFixture: boolean 
         const simulationResponse = await api.post(`/league/${leagueId}/simulation`, {
             playAllFixture
         });
-        
+
         return {
             upcomingFixtures: simulationResponse.data.upcomingFixtures || [],
             playedFixtures: simulationResponse.data.playedFixtures || [],

@@ -1,0 +1,225 @@
+{
+	"info": {
+		"_postman_id": "a27fb363-c3fd-4b1f-8998-dce529cdeeae",
+		"name": "League Sim",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20727282"
+	},
+	"item": [
+		{
+			"name": "Create League",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();\r",
+							"pm.environment.set('leagueId',response.leagueId)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"leagueName\" : \"{{leagueName}}\",\r\n    \"teamCount\": \"{{teamNumber}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/league",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Sim",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"playAllFixture\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/simulation",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"simulation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "League IDs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Standing",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/standing",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"standing"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fixtures",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/fixtures",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"fixtures"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Predict",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/predict",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"predict"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Match Results",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/matchResults",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"matchResults"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete League",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit League",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weekNumber\": 1,\r\n    \"teamName\": \"Team B\",\r\n    \"teamType\": \"home\",\r\n    \"againstTeam\": \"Team E\",\r\n    \"teamOldGoals\": 3,\r\n    \"goals\": 15,\r\n    \"isDraw\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
