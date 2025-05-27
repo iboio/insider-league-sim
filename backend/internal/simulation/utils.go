@@ -1,6 +1,8 @@
 package simulation
 
-import "league-sim/internal/models"
+import (
+	"league-sim/internal/models"
+)
 
 func LoserTeamAttributeChanging(standings *models.Standings, team *models.Team, matchOutCome models.MatchOutcome) {
 	standings.Goals += matchOutCome.LoserGoals

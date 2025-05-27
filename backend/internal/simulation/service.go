@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"fmt"
 	"math/rand"
 
 	appContext "league-sim/internal/contexts/appContexts"
@@ -89,12 +90,16 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 			awayStanding.Team = *teamMap[match.Away.Name]
 
 			var homeScore, awayScore int
+			matchWinner := matchResult.Winner.Name
 			if matchResult.IsDraw {
 				homeScore = matchResult.WinnerGoals
 				awayScore = matchResult.LoserGoals
 			} else if match.Home.Name == matchResult.Winner.Name {
 				homeScore = matchResult.WinnerGoals
 				awayScore = matchResult.LoserGoals
+
+			} else if matchResult.WinnerGoals == matchResult.LoserGoals {
+				matchWinner = "draw"
 			} else {
 				homeScore = matchResult.LoserGoals
 				awayScore = matchResult.WinnerGoals
@@ -107,7 +112,7 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 					HomeScore:  homeScore,
 					Away:       match.Away.Name,
 					AwayScore:  awayScore,
-					Winner:     matchResult.Winner.Name,
+					Winner:     matchWinner,
 				})
 		}
 
@@ -144,9 +149,13 @@ func GenerateMatchResult(home models.Team, away models.Team) models.MatchOutcome
 	awayScore := league.CalculateStrength(away)
 
 	total := homeScore + awayScore
-	if total == 0 {
-		goals := rand.Intn(5) + 1
+
+	drawChance := 0.2
+	if rand.Float64() < drawChance {
+		goals := rand.Intn(3)
 		return models.MatchOutcome{
+			Winner:      home,
+			Loser:       away,
 			IsDraw:      true,
 			LoserGoals:  goals,
 			WinnerGoals: goals,
@@ -156,9 +165,10 @@ func GenerateMatchResult(home models.Team, away models.Team) models.MatchOutcome
 	homeChance := homeScore / total
 	homeWins := rand.Float64() < homeChance
 
+	winnerGoals := rand.Intn(5) + 1
+	loserGoals := rand.Intn(winnerGoals)
+
 	if homeWins {
-		winnerGoals := rand.Intn(5) + 1
-		loserGoals := rand.Intn(winnerGoals)
 		return models.MatchOutcome{
 			Winner:      home,
 			Loser:       away,
@@ -167,8 +177,6 @@ func GenerateMatchResult(home models.Team, away models.Team) models.MatchOutcome
 			LoserGoals:  loserGoals,
 		}
 	} else {
-		winnerGoals := rand.Intn(5) + 1
-		loserGoals := rand.Intn(winnerGoals)
 		return models.MatchOutcome{
 			Winner:      away,
 			Loser:       home,
@@ -193,18 +201,46 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 		standingsMap[t] = &activeLeague.Standings[i]
 	}
 
+	teamMap := make(map[string]*models.Team)
+	for _, t := range activeLeague.Teams {
+		teamMap[t.Name] = &t
+	}
+
 	teamStanding := standingsMap[data.TeamName]
 	againstTeamStanding := standingsMap[data.AgainstTeam]
-	againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
-	teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
-	teamStanding.Points += 3
-	againstTeamStanding.Points -= 3
 
-	teamStanding.Wins += 1
-	teamStanding.Losses -= 1
+	if data.IsDraw {
+		fmt.Println("Match is a draw")
+		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
+		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
 
-	againstTeamStanding.Wins -= 1
-	againstTeamStanding.Losses += 1
+		teamStanding.Points += 2
+		againstTeamStanding.Points -= 1
+
+		teamStanding.Wins += 1
+
+	} else {
+		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
+		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
+		teamStanding.Points += 3
+		againstTeamStanding.Points -= 3
+
+		teamStanding.Wins += 1
+		teamStanding.Losses -= 1
+
+		againstTeamStanding.Wins -= 1
+		againstTeamStanding.Losses += 1
+	}
+
+	teamMap[data.TeamName].Morale += 5
+	if teamMap[data.TeamName].Morale > 100 {
+		teamMap[data.TeamName].Morale = 100
+	}
+
+	teamMap[data.AgainstTeam].Morale -= 5
+	if teamMap[data.AgainstTeam].Morale < 0 {
+		teamMap[data.AgainstTeam].Morale = 0
+	}
 
 	err = ss.appCtx.ActiveLeagueRepository().SetActiveLeague(activeLeague)
 	if err != nil {
@@ -219,4 +255,5 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 	}
 
 	return nil
+
 }
