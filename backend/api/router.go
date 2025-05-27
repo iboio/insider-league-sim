@@ -20,7 +20,7 @@ func StartServer(appCtx appContext.AppContext, services services.Service) error 
 	e.Use(
 		middleware.CORSWithConfig(
 			middleware.CORSConfig{
-				AllowOrigins: []string{"*"}, // Allow specific origins
+				AllowOrigins: []string{"*"},
 				AllowMethods: []string{
 					http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions,
 				},

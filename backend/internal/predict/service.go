@@ -115,7 +115,6 @@ func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStand
 			if s.Points > leader.Points {
 				leader = s
 			} else if s.Points == leader.Points {
-				// Goal difference yüksek olan lider
 				if (s.Goals - s.Against) > (leader.Goals - leader.Against) {
 					leader = s
 				}

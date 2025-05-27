@@ -59,7 +59,6 @@ func (mrr *matchResultRepository) SetMatchResults(leagueId string, matchResults 
 	args := make([]interface{}, 0, len(matchResults)*7)
 
 	for _, mr := range matchResults {
-		// Her satır için "(?, ?, ?, ?, ?, ?, ?)" şeklinde placeholder
 		placeholders = append(placeholders, "(?, ?, ?, ?, ?, ?, ?)")
 		args = append(
 			args,
