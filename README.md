@@ -1,33 +1,33 @@
 # Insider League Simulator ⚽
 
-Go ile geliştirilmiş, round-robin fikstür algoritmasına dayalı bir futbol ligi simülasyon uygulaması. Kullanıcılar kendi liglerini oluşturabilir, maçları oynatabilir, şampiyonluk tahminleri alabilir ve maç sonuçlarını düzenleyebilirler. Tüm veriler MySQL veritabanında saklanır; uygulama, bellek üzerinde herhangi bir state tutmaz.
+A football league simulation system built in Go, using a round-robin fixture algorithm. Users can create leagues, simulate matches, receive championship predictions, and edit results. All data is persisted in a MySQL database—no in-memory caching is used.
 
-> Backend+Frontend tam entegre çalışır. Frontend UI tasarımı AI destekli üretilmiştir, API düzenlemeleri ve entegrasyon ise elle yazılmıştır.
-
----
-
-## 🎯 Amaç
-
-Bu proje, Go dilinde context tabanlı state yönetimi, dependency injection (DI) yapısı ve modüler servis mimarisi gibi kavramları derinlemesine deneyimlemek amacıyla geliştirilmiştir. Veritabanı tasarımı bazı yönlerden optimize edilebilir olsa da, tüm işlevsellik eksiksiz çalışmaktadır ve proje, daha iyi bir AppContext mimarisi ile geliştirilmeye devam edecektir.
+> The project includes a fully integrated AI-assisted frontend, while all API logic and integration was hand-crafted.
 
 ---
 
-## 🚀 Özellikler
+## 🎯 Purpose
 
-- [x] Lig oluşturma (kendi takım isimlerini seçerek)
-- [x] Round-robin fikstür üretimi
-- [x] Maç oynatma ve sonuç güncelleme
-- [x] Şampiyonluk tahminleri (predict) hesaplama
-- [x] Mevcut ligleri görüntüleme ve devam ettirme
-- [x] Tüm state'ler MySQL veritabanında JSON formatında saklanır
-- [x] Toplam 10 API endpoint: 5 GET, 3 POST, 1 PUT, 1 DELETE
-- [x] %75+ unit test coverage (AI destekli test yazımı)
-- [x] Dockerfile ve docker-compose.yml ile konteynerleştirme
-- [x] Postman collection ve environment dosyaları ile API testi
+This project was created to explore context-based state management, dependency injection (DI), and modular service architecture in Go. Although the database schema could be more optimized, the system is fully functional and under active improvement—especially around a better AppContext structure.
 
 ---
 
-## 🗂️ Proje Yapısı
+## 🚀 Features
+
+- [x] Create leagues with custom team names
+- [x] Round-robin fixture generation
+- [x] Play matches and update results
+- [x] Generate championship predictions
+- [x] Resume existing leagues
+- [x] All state stored as JSON fields in MySQL
+- [x] 10 total API endpoints (5 GET, 3 POST, 1 PUT, 1 DELETE)
+- [x] 75%+ unit test coverage (AI-assisted)
+- [x] Dockerfile + docker-compose for deployment
+- [x] Postman collection & environment files
+
+---
+
+## 🗂️ Project Structure
 
 ```
 insider-league-sim/
@@ -52,84 +52,83 @@ insider-league-sim/
 
 ---
 
-## 🗃️ Veritabanı Yapısı (MySQL)
+## 🗃️ Database Schema (MySQL)
 
-Tüm veriler `league_sim` adlı veritabanında saklanır.
+All data is stored in a schema called `league_sim`.
 
-### `league` tablosu
+### `league` table
 - `id`, `name`, `leagueId`, `createdAt`
 
-### `active_league` tablosu
-- `leagueId`, `teams`, `playedFixtures`, `upcomingFixtures`, `currentWeek`, `standings`, `onActiveLeague`
+### `active_league` table
+- JSON fields for: `teams`, `fixtures`, `standings`, `currentWeek`
 
-### `match_results` tablosu
-- `homeTeam`, `awayTeam`, `homeGoals`, `awayGoals`, `winnerName`, `matchWeek`
-
----
-
-## 🔮 Tahmin (Predict) Algoritması
-
-Takımların moral, güç, stamina, savunma gibi istatistikleri dikkate alınarak hesaplanır.  
-%40 geçmiş performans + %60 güncel stat çarpanları kullanılır.
+### `match_results` table
+- All match outcomes and metadata
 
 ---
 
-## 🧪 Testler
+## 🔮 Prediction Algorithm
 
-- Unit test coverage: %75+
-- Test yazımında AI destekli kod üretiminden yararlanılmıştır.
-- Predict, League ve Simulation servisleri mocklanarak test edilmiştir.
+Each team's chance to win is calculated based on:
+- 40% previous match performance
+- 60% weighted sum of team stats (power, morale, stamina, defense)
 
 ---
 
-## 📬 API Bilgisi
+## 🧪 Testing
 
-Toplam 10 endpoint:
-- **GET**: 5 adet
-- **POST**: 3 adet
-- **PUT**: 1 adet
-- **DELETE**: 1 adet
+- 75%+ unit test coverage
+- AI used to assist in writing test logic
+- Key services like Predictor, League, and Simulation are mocked and tested
 
-Frontend bileşenleri kendi API çağrılarını yapar.  
-Postman collection ve env dosyası sayesinde Create League sonrası dönen lig ID'si otomatik olarak test ortamına set edilir.
+---
+
+## 📬 API Summary
+
+10 endpoints:
+- 5 GET
+- 3 POST
+- 1 PUT
+- 1 DELETE
+
+Each frontend component triggers its own request (modular architecture).  
+Postman collection auto-updates the league ID after creation.
 
 ---
 
 ## 🖥️ Frontend
 
-Frontend AI destekli tasarlanmış, API ile entegre edilmiştir.  
-Lig kurma, maç oynatma ve tahmin alma işlemleri UI üzerinden yapılabilir.
+The frontend is AI-generated and fully integrated with the API.  
+Users can create leagues, simulate matches, and view predictions through the UI.
 
 ---
 
-## 🌐 Canlı Demo
+## 🌐 Live Deployment
 
-Uygulama Raspberry Pi üzerine self-hosted bir şekilde deploy edilmiştir.  
-Coolify kullanılarak deploy edilmiş, Cloudflare Tunneling ile yönlendirilmiştir.  
-HTTP olarak herkesin erişimine açıktır.
+The project is deployed on a self-hosted Raspberry Pi using Coolify.  
+Cloudflare Tunnel is used for public access via HTTP.
 
-🔗 Uygulamayı deneyimlemek için: [http://iboio.kilicstation.com](http://iboio.kilicstation.com)
-
----
-
-## 🧠 Kişisel Yorumlar
-
-- ✅ En sevdiğim yön: AppContext yapısı, NestJS geçmişim sayesinde tanıdık ve esnek.
-- ⚠️ En çok zorlandığım nokta: Context interface yapısını ilk kez bu kadar kapsamlı uygulamak.
-- ❌ Zayıf yön: Veritabanı modeli; JSON alanlar sadeleştirilebilir ve normalize edilebilirdi.
+🌍 Live Demo: [http://iboio.kilicstation.com](http://iboio.kilicstation.com)
 
 ---
 
-## 🛠️ Geliştirme Planları
+## 🧠 Notes & Reflections
 
-- Daha modüler AppContext sistemi
-- Veri tabanı için daha fazla ilişkisel ve normalleştirilmiş modelleme
-- Redis destekli opsiyonel cache katmanı
-- Geliştirme "dev" branch'i üzerinden yapılacak, ana branch'e merge edilmeden önce kod gözden geçirme yapılacak.
+- ✅ Favorite part: AppContext via interface and DI, familiar thanks to my NestJS experience
+- ⚠️ Biggest challenge: Understanding and implementing the context interface
+- ❌ Weakest link: The database schema—JSON fields could be normalized or simplified
 
 ---
 
-## 📦 Kurulum
+## 🛠️ Future Plans
+
+- Restructure AppContext with a cleaner dependency graph
+- Refactor and normalize database design
+- (Optional) Add Redis for faster cache-based access
+
+---
+
+## 📦 Setup
 
 ```bash
 git clone https://github.com/iboio/insider-league-sim.git
@@ -137,14 +136,12 @@ cd insider-league-sim
 docker-compose up --build
 ```
 
-> `.env` dosyasını `backend/` klasörü altında kendinize göre düzenlemelisiniz.
+> Make sure to adjust the `.env` file in the `backend/` folder to match your local setup.
 
 ---
 
-## 📄 Lisans
+## 📄 License
 
 MIT
 
----
-
-Daha fazla bilgi için → [GitHub: iboio/insider-league-sim](https://github.com/iboio/insider-league-sim)
+For more information → [GitHub: iboio/insider-league-sim](https://github.com/iboio/insider-league-sim)
