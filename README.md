@@ -74,10 +74,33 @@ Each team's chance to win is calculated based on:
 - 60% weighted sum of team stats (power, morale, stamina, defense)
 
 ---
+### 🧭 User Flow
+
+When a user visits the site, the first step is to create a league. They must provide a league name and the number of teams they want to include. If an odd number of teams is entered, the backend automatically adds a "bye" team to ensure fair match scheduling via a round-robin system.
+
+Once the league is created, the user can navigate to the league interface. This view includes:
+
+- A live **scoreboard**
+- A list of **upcoming** and **played fixtures**
+- A **prediction table** that shows the probability of each team becoming champion
+- A list of **match results**
+
+Users can choose to simulate a single match week or play out the entire league at once. The probability of winning is calculated based on each team's stats. Every team is randomly assigned attributes ranging between 70 and 100 at the time of league creation. Each attribute has a multiplier, and the outcome is decided using weighted randomness. There is also a 20% base chance that a match may end in a draw.
+
+Match results can be edited later, but with a strict rule:
+- In win/loss scenarios, **only the losing team can be made the winner**.
+- In draw scenarios, **only one of the teams can be declared the winner**.
+- **Editing goals is not allowed**.
+
+Predictions are recalculated after every simulation or manual result change. The chances of winning the league are based on a team’s current points and its overall strength. If a team mathematically cannot catch the leader in the remaining matches, its winning chance drops to 0%. In the final week, a winner is declared with a 100% chance. In case of a tie in points, the goal difference is used as a tiebreaker.
+
+At any point, users can reset the league or force a winner if desired. Leagues are persistent: unless deleted, they remain stored and can be resumed exactly where they were left off.
+
+---
 
 ## 🧪 Testing
 
-- 75%+ unit test coverage
+- 85% unit test coverage
 - AI used to assist in writing test logic
 - Key services like Predictor, League, and Simulation are mocked and tested
 
@@ -92,7 +115,7 @@ Each team's chance to win is calculated based on:
 - 1 DELETE
 
 Each frontend component triggers its own request (modular architecture).  
-Postman collection auto-updates the league ID after creation.
+[Postman collection](./postman%20collection) auto-updates the league ID after creation.
 
 ---
 
@@ -140,10 +163,10 @@ docker-compose up --build
 ---
 ## ScreenShots
 Login Page - Create New League - Fixtures Tables
-![Screenshot 2](asserts/screenshoot-2.jpg)
+![Screenshot 2](assets/screenshoot-2.jpg)
 
 Standings - Predictions - Match Results - Edit Results
-![Screenshot 1](asserts/screenshoot-1.jpg)
+![Screenshot 1](assets/screenshoot-1.jpg)
 
 ---
 
