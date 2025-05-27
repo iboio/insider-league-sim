@@ -1,3 +1,13 @@
+# ignore spesific files and folders
 storage
 league-sim-fe/node_modules
 storage/mysql/*
+
+# Ignore idea folders
+.idea
+/backend/.idea
+/frontend/.idea
+
+# Ignore coverage reports
+/backend/coverage
+/backend/coverage.out
