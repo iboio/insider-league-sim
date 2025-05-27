@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS league_sim;
+create schema league_sim;
 USE league_sim;
 
 CREATE TABLE IF NOT EXISTS league

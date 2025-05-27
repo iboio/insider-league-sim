@@ -9,8 +9,9 @@ services:
       MYSQL_ROOT_PASSWORD: iboioroot
       MYSQL_USER: iboio
       MYSQL_PASSWORD: 1234
+      MYSQL_DATABASE: league-sim
     volumes:
-      - ./backend/migrations/init.sql:/docker-entrypoint-initdb.d
+      - ./backend/migrations:/docker-entrypoint-initdb.d
       - ./storage/mysql:/var/lib/mysql
 
   backend:
@@ -19,6 +20,6 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "3050:3050"
+      - "8080:8080"
     depends_on:
       - mysql

@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math/rand"
 
 	appContext "league-sim/internal/contexts/appContexts"
@@ -210,7 +209,6 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 	againstTeamStanding := standingsMap[data.AgainstTeam]
 
 	if data.IsDraw {
-		fmt.Println("Match is a draw")
 		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
 		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
 
