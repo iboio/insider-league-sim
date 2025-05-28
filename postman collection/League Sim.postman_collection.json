@@ -201,7 +201,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"weekNumber\": 1,\r\n    \"teamName\": \"Team B\",\r\n    \"teamType\": \"home\",\r\n    \"againstTeam\": \"Team E\",\r\n    \"teamOldGoals\": 3,\r\n    \"goals\": 15,\r\n    \"isDraw\": false\r\n}",
+					"raw": "{\r\n    \"home\": \"Team B\",\r\n    \"homeScore\": 3,\r\n    \"away\": \"Team E\",\r\n    \"awayScore\": 1,\r\n    \"matchWeek\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
