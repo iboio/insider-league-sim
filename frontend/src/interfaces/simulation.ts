@@ -1,19 +1,16 @@
-import type {Team} from "@/interfaces/league.ts";
-
-
-export interface MatchOutcome {
-    winner: Team;
-    loser: Team;
-    isDraw: boolean;
-    winnerGoals: number;
-    loserGoals: number;
-}
-
 export interface MatchResult {
-    weekNumber: number;
+    matchWeek: number;
     home: string;
     homeScore: number;
     away: string;
     awayScore: number;
     winner: string;
+}
+
+export interface EditMatchData {
+    home: string;
+    homeScore: number;
+    away: string;
+    awayScore: number;
+    matchWeek: number;
 }

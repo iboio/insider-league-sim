@@ -18,14 +18,13 @@ type GetActiveLeagueFixturesResponse struct {
 }
 
 type EditMatchResult struct {
-	LeagueId    string `json:"leagueId"`
-	Home        string `json:"home"`
-	Away        string `json:"away"`
-	HomeScore   int    `json:"homeScore"`
-	AwayScore   int    `json:"awayScore"`
-	MatchWeek   int    `json:"matchWeek"`
-	Winner      string `json:"winner"`
-	ChangedTeam string `json:"changedTeam"`
+	LeagueId  string `json:"leagueId"`
+	Home      string `json:"home"`
+	Away      string `json:"away"`
+	HomeScore int    `json:"homeScore"`
+	AwayScore int    `json:"awayScore"`
+	MatchWeek int    `json:"matchWeek"`
+	Winner    string `json:"winner"`
 }
 
 type SimulateLeagueRequest struct {

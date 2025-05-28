@@ -1,5 +1,5 @@
 import type {PredictedStanding, Standings, Team, Week} from "@/interfaces/league.ts";
-import type {MatchResult} from "@/interfaces/simulation.ts";
+import type {MatchResult} from "@/interfaces/simulation";
 
 export interface LeagueData {
     leagueId: string;

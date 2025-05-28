@@ -22,12 +22,12 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Edit, Trophy } from 'lucide-react';
-import type {EditMatchData, MatchResult} from "@/interfaces/api.ts";
+import type {EditMatchData, MatchResult} from "@/interfaces/simulation";
 
 
 
 interface MatchResultsProps {
-    matches: MatchResult[] | null | undefined;
+    matches: MatchResult[];
     leagueId?: string;
     onMatchUpdate?: (data: EditMatchData) => void;
 }
@@ -63,7 +63,6 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                 away: selectedMatch.away,
                 awayScore: editingTeam === 'away' ? newGoalsNum : selectedMatch.awayScore,
                 matchWeek: selectedMatch.matchWeek,
-                changedTeam: editingTeam
             };
 
             if (onMatchUpdate) {

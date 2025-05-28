@@ -213,10 +213,6 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 		awayStanding.Points -= 1
 		homeStanding.Points -= 1
 
-	}
-	if matching.HomeScore == matching.AwayScore {
-		awayStanding.Wins -= 1
-		homeStanding.Wins -= 1
 	} else if matching.HomeScore > matching.AwayScore {
 		homeStanding.Points -= 3
 		homeStanding.Wins -= 1
@@ -244,7 +240,7 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 				LoserGoals:  data.AwayScore,
 			})
 		DrawTeamAttributeChanging(
-			awayStanding, awayTeam, models.MatchOutcome{
+			homeStanding, homeTeam, models.MatchOutcome{
 				Winner:      *awayTeam,
 				Loser:       *homeTeam,
 				IsDraw:      true,

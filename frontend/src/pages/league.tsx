@@ -9,7 +9,7 @@ import StandingsTable from '../components/league/StandingsTable'
 import Fixtures from '../components/league/Fixtures'
 import MatchResults from '../components/league/MatchResults'
 import Predictions from '../components/league/Predictions'
-import type {EditMatchData} from "@/interfaces/api.ts";
+import type {EditMatchData} from "@/interfaces/simulation";
 
 // Main League Component
 function League() {
