@@ -23,4 +23,5 @@ type MatchResultRepository interface {
 	SetMatchResults(leagueId string, matchResults []models.MatchResult) error
 	GetMatchResults(leagueId string) ([]models.MatchResult, error)
 	DeleteMatchResults(leagueId string) error
+	GetMatchResultByWeekAndTeam(data models.EditMatchResult) (models.MatchResult, error)
 }

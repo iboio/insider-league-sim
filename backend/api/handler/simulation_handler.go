@@ -30,7 +30,6 @@ func StartSimulation(c echo.Context) error {
 	}
 
 	service := c.Request().Context().Value("services").(services.Service)
-
 	if service == nil {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "Service context missing")

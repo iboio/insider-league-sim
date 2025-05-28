@@ -9,10 +9,10 @@ type MatchOutcome struct {
 }
 
 type MatchResult struct {
-	WeekNumber int    `json:"weekNumber"`
-	Home       string `json:"home"`
-	HomeScore  int    `json:"homeScore"`
-	Away       string `json:"away"`
-	AwayScore  int    `json:"awayScore"`
-	Winner     string `json:"winner"`
+	MatchWeek int    `json:"matchWeek"`
+	Home      string `json:"home"`
+	HomeScore int    `json:"homeScore"`
+	Away      string `json:"away"`
+	AwayScore int    `json:"awayScore"`
+	Winner    string `json:"winner"`
 }
