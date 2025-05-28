@@ -7,8 +7,7 @@ import type {
 } from '../interfaces/dto';
 import type {PredictedStanding} from '../interfaces/league';
 import type {LeagueData} from '../interfaces/full';
-import type {EditMatchData} from "@/interfaces/api.ts";
-import type {MatchResult} from "@/interfaces/simulation.ts";
+import type {EditMatchData, MatchResult} from "@/interfaces/simulation";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
