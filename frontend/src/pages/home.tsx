@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label'
 
 // Separate component for the empty state
 const EmptyState = ({ onCreateClick }: { onCreateClick: () => void }) => (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-6 bg-gray-50">
+    <div className="flex flex-col items-center justify-center rounded-2xl gap-4 p-6 bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-900">League Sim</h1>
         <h2 className="text-2xl text-gray-700">Welcome to League Sim!</h2>
         <p className="max-w-md text-center text-gray-600">
@@ -48,7 +48,7 @@ const LeagueCard = ({
     }
 
     const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation() // Prevent navigation when clicking delete
+        e.stopPropagation()
         onDelete(league.leagueId)
     }
 
@@ -68,7 +68,7 @@ const LeagueCard = ({
                     {isDeleting ? (
                         <>
                             <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></span>
-                            Siliniyor
+                            Deleting...
                         </>
                     ) : 'Sil'}
                 </Button>
@@ -102,7 +102,7 @@ const CreateLeagueDialog = ({
     onCreateLeague: () => void
 }) => (
     <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-[25vw] sm:max-w-[425px] w-full mx-auto p-0">
+        <DialogContent className="max-w-[25vw] sm:max-w-[425px] mx-auto p-0">
             <div className="p-6">
                 <DialogHeader className="pb-4">
                     <DialogTitle className="text-xl">Create a New League</DialogTitle>
@@ -241,17 +241,17 @@ function Home() {
                 <EmptyState onCreateClick={() => setOpen(true)} />
             ) : (
                 <div className="container flex flex-col mx-auto p-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-center mb-6 p-4">
-                        <h1 className="text-3xl font-bold mb-4 sm:mb-0">Your Leagues</h1>
+                    <div className="flex flex-col justify-between items-center mb-6 p-4">
+                        <h1 className="text-3xl font-bold mb-4 p-6 sm:mb-0">Your Leagues</h1>
                         <Button
                             onClick={() => setOpen(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-black w-full sm:w-auto"
+                            className="bg-blue-600 hover:bg-blue-700 text-black sm:w-auto"
                         >
                             Create New League
                         </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                    <div className="grid justify-center align-middle grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                         {leagues.map((league) => (
                             <LeagueCard 
                                 key={league.leagueId} 

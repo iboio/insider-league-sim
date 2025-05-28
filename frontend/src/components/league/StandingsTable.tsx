@@ -7,7 +7,8 @@ interface StandingsTableProps {
 }
 
 export const StandingsTable = ({ standings }: StandingsTableProps) => {
-  
+    const sortedStandings = (standings as Standings[]).sort((a, b) => b.points - a.points);
+
   if (!standings || !Array.isArray(standings) || standings.length === 0) {
     return (
         <Card className="min-h-[300px] w-full shadow-md">
@@ -42,7 +43,7 @@ export const StandingsTable = ({ standings }: StandingsTableProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {standings.map((team, index) => (
+                {sortedStandings.map((team, index) => (
                     <TableRow
                         key={`${team.team.name}-${index}`}
                         className={`hover:bg-gray-50 ${index === 0 ? 'bg-green-50' : ''}`}
