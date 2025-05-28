@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -29,7 +30,6 @@ func StartSimulation(c echo.Context) error {
 	}
 
 	service := c.Request().Context().Value("services").(services.Service)
-
 	if service == nil {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "Service context missing")
@@ -53,7 +53,7 @@ func StartSimulation(c echo.Context) error {
 func GetMatchResults(c echo.Context) error {
 	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
 	appCtx, ok := appCtx.(appContext.AppContext)
-	
+
 	if !ok || appCtx == nil {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
@@ -68,4 +68,26 @@ func GetMatchResults(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, matchResults)
+}
+
+func EditMatch(c echo.Context) error {
+	var body models.EditMatchResult
+
+	if err := c.Bind(&body); err != nil {
+
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	leagueId := c.Param("leagueId")
+	body.LeagueId = leagueId
+	service := c.Request().Context().Value("services").(services.Service)
+
+	err := service.SimulationService().EditMatch(body)
+	if err != nil {
+		fmt.Println("Error editing match:", err)
+
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to edit match")
+	}
+
+	return c.JSON(http.StatusOK, "Standings updated successfully")
 }

@@ -85,12 +85,7 @@ Once the league is created, the user can navigate to the league interface. This 
 - A **prediction table** that shows the probability of each team becoming champion
 - A list of **match results**
 
-Users can choose to simulate a single match week or play out the entire league at once. The probability of winning is calculated based on each team's stats. Every team is randomly assigned attributes ranging between 70 and 100 at the time of league creation. Each attribute has a multiplier, and the outcome is decided using weighted randomness. There is also a 20% base chance that a match may end in a draw.
-
-Match results can be edited later, but with a strict rule:
-- In win/loss scenarios, **only the losing team can be made the winner**.
-- In draw scenarios, **only one of the teams can be declared the winner**.
-- **Editing goals is allowed**.
+Users can choose to simulate a single match week or play out the entire league at once. The probability of winning is calculated based on each team's stats. Every team is randomly assigned attributes ranging between 70 and 100 at the time of league creation. Each attribute has a multiplier, and the outcome is decided using weighted randomness. There is also a 20% base chance that a match may end in a draw. Match results can be edited later.
 
 Predictions are recalculated after every simulation or manual result change. The chances of winning the league are based on a team’s current points and its overall strength. If a team mathematically cannot catch the leader in the remaining matches, its winning chance drops to 0%. In the final week, a winner is declared with a 100% chance. In case of a tie in points, the goal difference is used as a tiebreaker.
 

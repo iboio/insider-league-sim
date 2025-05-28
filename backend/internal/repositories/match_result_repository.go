@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
@@ -35,7 +36,7 @@ func (mrr *matchResultRepository) GetMatchResults(leagueId string) ([]models.Mat
 			&mr.Away,
 			&mr.AwayScore,
 			&mr.Winner,
-			&mr.WeekNumber,
+			&mr.MatchWeek,
 		)
 		if err != nil {
 			return nil, err
@@ -68,7 +69,7 @@ func (mrr *matchResultRepository) SetMatchResults(leagueId string, matchResults 
 			mr.Away,
 			mr.AwayScore,
 			mr.Winner,
-			mr.WeekNumber,
+			mr.MatchWeek,
 		)
 	}
 
@@ -86,18 +87,20 @@ func (mrr *matchResultRepository) SetMatchResults(leagueId string, matchResults 
 }
 
 func (mrr *matchResultRepository) EditMatchScore(data models.EditMatchResult) error {
-	changedTeam := fmt.Sprintf("%sTeam = '%s'", data.TeamType, data.TeamName)
-	changedTeamGoal := fmt.Sprintf("%sGoals = %d", data.TeamType, data.Goals)
-
-	query := `UPDATE match_results SET winnerName = ?, ` + changedTeamGoal + ` WHERE leagueId = ? AND matchWeek = ? AND ` + changedTeam
-
-	_, err := mrr.db.Exec(query, data.TeamName, data.LeagueId, data.WeekNumber)
-
+	query := `UPDATE match_results SET homeGoals = ?, awayGoals = ?, winnerName = ? WHERE leagueId = ? AND matchWeek = ? AND homeTeam = ? AND awayTeam = ?`
+	_, err := mrr.db.Exec(
+		query,
+		data.HomeScore,
+		data.AwayScore,
+		data.Winner,
+		data.LeagueId,
+		data.MatchWeek,
+		data.Home,
+		data.Away)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error updating match score:", err)
 		return err
 	}
-
 	return nil
 }
 
@@ -112,4 +115,35 @@ func (mrr *matchResultRepository) DeleteMatchResults(leagueId string) error {
 	}
 
 	return nil
+}
+
+func (mmr *matchResultRepository) GetMatchResultByWeekAndTeam(data models.EditMatchResult) (
+	models.MatchResult, error) {
+
+	query := `
+		SELECT homeTeam, homeGoals, awayTeam, awayGoals, winnerName, matchWeek
+		FROM match_results
+		WHERE leagueId = ? AND matchWeek = ? AND homeTeam = ? AND awayTeam = ?
+	`
+
+	row := mmr.db.QueryRow(query, data.LeagueId, data.MatchWeek, data.Home, data.Away)
+
+	var queryData models.MatchResult
+	err := row.Scan(
+		&queryData.Home,
+		&queryData.HomeScore,
+		&queryData.Away,
+		&queryData.AwayScore,
+		&queryData.Winner,
+		&queryData.MatchWeek)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("No match found for the given week and teams")
+			return models.MatchResult{}, err
+		}
+		fmt.Println("Error scanning match result:", err)
+		return models.MatchResult{}, err
+	}
+
+	return queryData, nil
 }

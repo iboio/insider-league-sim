@@ -1,11 +1,10 @@
 package simulation
 
 import (
-	"math/rand"
-
 	appContext "league-sim/internal/contexts/appContexts"
 	"league-sim/internal/league"
 	"league-sim/internal/models"
+	"math/rand"
 )
 
 type SimulationService struct {
@@ -22,7 +21,6 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 	var matches []models.MatchResult
 	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(leagueId)
 	if err != nil {
-		panic(err)
 		return models.SimulationResponse{}, err
 	}
 
@@ -106,19 +104,17 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 
 			matches = append(
 				matches, models.MatchResult{
-					WeekNumber: currentFixtureWeek.Number,
-					Home:       match.Home.Name,
-					HomeScore:  homeScore,
-					Away:       match.Away.Name,
-					AwayScore:  awayScore,
-					Winner:     matchWinner,
+					MatchWeek: currentFixtureWeek.Number,
+					Home:      match.Home.Name,
+					HomeScore: homeScore,
+					Away:      match.Away.Name,
+					AwayScore: awayScore,
+					Winner:    matchWinner,
 				})
 		}
 
 		activeLeague.PlayedFixtures = append(activeLeague.PlayedFixtures, currentFixtureWeek)
-
 		activeLeague.UpcomingFixtures = activeLeague.UpcomingFixtures[1:]
-
 		activeLeague.CurrentWeek = currentFixtureWeek.Number
 	}
 
@@ -187,10 +183,12 @@ func GenerateMatchResult(home models.Team, away models.Team) models.MatchOutcome
 }
 
 func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
-	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(data.LeagueId)
-
+	matching, err := ss.appCtx.MatchResultRepository().GetMatchResultByWeekAndTeam(data)
 	if err != nil {
-
+		return err
+	}
+	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(data.LeagueId)
+	if err != nil {
 		return err
 	}
 
@@ -205,53 +203,102 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 		teamMap[t.Name] = &t
 	}
 
-	teamStanding := standingsMap[data.TeamName]
-	againstTeamStanding := standingsMap[data.AgainstTeam]
+	awayStanding := standingsMap[matching.Away]
+	homeStanding := standingsMap[matching.Home]
 
-	if data.IsDraw {
-		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
-		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
+	homeTeam := teamMap[matching.Home]
+	awayTeam := teamMap[matching.Away]
 
-		teamStanding.Points += 2
-		againstTeamStanding.Points -= 1
+	if matching.HomeScore == matching.AwayScore {
+		awayStanding.Points -= 1
+		homeStanding.Points -= 1
 
-		teamStanding.Wins += 1
-
-	} else {
-		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
-		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
-		teamStanding.Points += 3
-		againstTeamStanding.Points -= 3
-
-		teamStanding.Wins += 1
-		teamStanding.Losses -= 1
-
-		againstTeamStanding.Wins -= 1
-		againstTeamStanding.Losses += 1
 	}
+	if matching.HomeScore == matching.AwayScore {
+		awayStanding.Wins -= 1
+		homeStanding.Wins -= 1
+	} else if matching.HomeScore > matching.AwayScore {
+		homeStanding.Points -= 3
+		homeStanding.Wins -= 1
 
-	teamMap[data.TeamName].Morale += 5
-	if teamMap[data.TeamName].Morale > 100 {
-		teamMap[data.TeamName].Morale = 100
+	} else if matching.HomeScore < matching.AwayScore {
+		awayStanding.Points -= 3
+		awayStanding.Wins -= 1
 	}
+	awayStanding.Goals -= matching.AwayScore
+	homeStanding.Goals -= matching.HomeScore
 
-	teamMap[data.AgainstTeam].Morale -= 5
-	if teamMap[data.AgainstTeam].Morale < 0 {
-		teamMap[data.AgainstTeam].Morale = 0
+	awayStanding.Played -= 1
+	homeStanding.Played -= 1
+
+	awayStanding.Against -= matching.HomeScore
+	homeStanding.Against -= matching.AwayScore
+
+	if data.HomeScore == data.AwayScore {
+		DrawTeamAttributeChanging(
+			awayStanding, awayTeam, models.MatchOutcome{
+				Winner:      *awayTeam,
+				Loser:       *homeTeam,
+				IsDraw:      true,
+				WinnerGoals: data.HomeScore,
+				LoserGoals:  data.AwayScore,
+			})
+		DrawTeamAttributeChanging(
+			awayStanding, awayTeam, models.MatchOutcome{
+				Winner:      *awayTeam,
+				Loser:       *homeTeam,
+				IsDraw:      true,
+				WinnerGoals: data.HomeScore,
+				LoserGoals:  data.AwayScore,
+			})
+		data.Winner = "draw"
+	}
+	if data.HomeScore > data.AwayScore {
+		WinnerTeamAttributeChanging(
+			homeStanding, homeTeam, models.MatchOutcome{
+				Winner:      *homeTeam,
+				Loser:       *awayTeam,
+				IsDraw:      false,
+				WinnerGoals: data.HomeScore,
+				LoserGoals:  data.AwayScore,
+			})
+		LoserTeamAttributeChanging(
+			awayStanding, awayTeam, models.MatchOutcome{
+				Winner:      *homeTeam,
+				Loser:       *awayTeam,
+				IsDraw:      false,
+				WinnerGoals: data.HomeScore,
+				LoserGoals:  data.AwayScore,
+			})
+		data.Winner = data.Home
+	}
+	if data.HomeScore < data.AwayScore {
+		WinnerTeamAttributeChanging(
+			awayStanding, awayTeam, models.MatchOutcome{
+				Winner:      *awayTeam,
+				Loser:       *homeTeam,
+				IsDraw:      false,
+				WinnerGoals: data.AwayScore,
+				LoserGoals:  data.HomeScore,
+			})
+		LoserTeamAttributeChanging(
+			homeStanding, homeTeam, models.MatchOutcome{
+				Winner:      *awayTeam,
+				Loser:       *homeTeam,
+				IsDraw:      false,
+				WinnerGoals: data.AwayScore,
+				LoserGoals:  data.HomeScore,
+			})
+		data.Winner = data.Away
 	}
 
 	err = ss.appCtx.ActiveLeagueRepository().SetActiveLeague(activeLeague)
 	if err != nil {
-
-		return nil
-	}
-
-	err = ss.appCtx.MatchResultRepository().EditMatchScore(data)
-	if err != nil {
-
 		return err
 	}
-
+	err = ss.appCtx.MatchResultRepository().EditMatchScore(data)
+	if err != nil {
+		return err
+	}
 	return nil
-
 }
