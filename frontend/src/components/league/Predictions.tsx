@@ -19,6 +19,7 @@ interface PredictionsProps {
 }
 
 export const Predictions = ({predictions}: PredictionsProps) => {
+    const sortedPredictions = (predictions as PredictedStanding[]).sort((a, b) => b.odds - a.odds);
     if (!predictions || predictions.length === 0) {
         return (
             <Card className="h-full min-h-[300px]">
@@ -48,7 +49,7 @@ export const Predictions = ({predictions}: PredictionsProps) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {predictions.map((team, index) => (
+                            {sortedPredictions.map((team, index) => (
                                 <TableRow
                                     key={`${team.team_name}-${index}`}
                                     className={`hover:bg-gray-50 ${index === 0 ? 'bg-purple-50' : ''}`}

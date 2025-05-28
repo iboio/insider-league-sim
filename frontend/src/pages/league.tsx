@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {useParams, useNavigate} from 'react-router-dom'
+import {useParams, useNavigate, useLocation} from 'react-router-dom'
 import {getLeagueById, simulateMatches, resetLeague, updateMatchResult} from '../services/api'
 import {Button} from '../components/ui/button'
 import type {LeagueData} from '../interfaces/full'
@@ -15,6 +15,8 @@ import type {EditMatchData} from "@/interfaces/api.ts";
 function League() {
     const {leagueId} = useParams<{ leagueId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { leagueName } = location.state || { leagueName: '' };
     const [allData, setAllData] = useState<LeagueData>({
         leagueId: '',
         leagueName: '',
@@ -115,7 +117,7 @@ function League() {
 
     if (loading) {
         return (
-            <div className="container mx-auto px-4 py-8 min-h-screen">
+            <div className="container mx-auto px-2 py-4 min-h-screen">
                 <div
                     className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
             </div>
@@ -155,12 +157,11 @@ function League() {
     }
 
     return (
-        <div className="w-full max-w-[98%] lg:max-w-[95%] mx-auto py-2" style={{minHeight: '100vh'}}>
-            {/* No overlay, keep content stable */}
+        <div className="w-full mx-auto px-1 py-1">
             {/* Header with league name and buttons */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">League {leagueId}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">League {leagueName}</h1>
                     <div className="text-sm text-gray-600 mt-1">
                         <span className="font-medium">Week:</span> {currentWeek} / {totalWeek}
                     </div>
@@ -221,7 +222,7 @@ function League() {
 
             {/* Show champion banner if no upcoming fixtures */}
             {allData.upcomingFixtures.length === 0 && allData.standings.length > 0 && (
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg mb-8">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg shadow-lg mb-4">
                     <h2 className="text-2xl font-bold mb-2">🏆 Champion Declared!</h2>
                     <p className="text-xl">
                         {(() => {
@@ -248,8 +249,8 @@ function League() {
 
             {/* Main content layout - Split into separate sections */}
             {/* Top row with standings, predictions, and match results */}
-            <div className="mb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="mb-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                     <div className="w-full">
                         <div className="bg-white rounded-lg shadow-md p-2 min-h-[300px]">
                             <h2 className="text-lg font-semibold mb-2">Standings</h2>
@@ -276,8 +277,8 @@ function League() {
             </div>
 
             {/* Bottom row with fixtures */}
-            <div className="mb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="mb-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                     <div className="w-full">
                         <div className="bg-white rounded-lg shadow-md p-2 min-h-[300px]">
                             <h2 className="text-lg font-semibold mb-2">Played Fixtures</h2>

@@ -349,7 +349,7 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                         <Button
                             onClick={handleSaveEdit}
                             disabled={updating || !newGoals}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-green-600 hover:bg-green-700 text-black"
                         >
                             {updating ? 'Saving...' : 'Save'}
                         </Button>
