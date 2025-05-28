@@ -21,7 +21,7 @@ This project was created to explore context-based state management, dependency i
 - [x] Resume existing leagues
 - [x] All state stored as JSON fields in MySQL
 - [x] 10 total API endpoints (5 GET, 3 POST, 1 PUT, 1 DELETE)
-- [x] 75%+ unit test coverage (AI-assisted)
+- [x] 80%+ unit test coverage (AI-assisted)
 - [x] Dockerfile + docker-compose for deployment
 - [x] Postman collection & environment files
 
@@ -95,7 +95,7 @@ At any point, users can reset the league or force a winner if desired. Leagues a
 
 ## 🧪 Testing
 
-- 85% unit test coverage
+- 80% unit test coverage
 - AI used to assist in writing test logic
 - Key services like Predictor, League, and Simulation are mocked and tested
 
