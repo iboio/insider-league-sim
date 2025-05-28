@@ -132,11 +132,11 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
 
     if (!matches || matches.length === 0) {
         return (
-            <Card className="h-full min-h-[300px]">
-                <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 py-3">
+            <Card className="h-full min-h-[300px] shadow-md">
+                <CardHeader className="bg-blue-600 py-3">
                     <CardTitle className="text-white text-lg font-bold flex items-center gap-2">
                         <Trophy className="w-5 h-5" />
-                        Maç Sonuçları
+                        Match Results
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 text-center">
@@ -186,7 +186,7 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
 
     return (
         <>
-            <Card className="min-h-[300px] w-full shadow-lg border-0">
+            <Card className="min-h-[300px] w-full shadow-md">
                 <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 py-4">
                     <CardTitle className="text-white text-xl font-bold flex items-center gap-2">
                         <Trophy className="w-6 h-6" />
@@ -268,13 +268,13 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                                                 {match.homeScore === match.awayScore ? (
                                                     <div className="mt-3 text-center">
                                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-100 text-amber-800">
-                                                            Berabere
+                                                            Draw
                                                         </span>
                                                     </div>
                                                 ) : (
                                                     <div className="mt-3 text-center">
                                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                                                            Kazanan: {match.winner}
+                                                            Winner: {match.winner}
                                                         </span>
                                                     </div>
                                                 )}
