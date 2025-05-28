@@ -80,3 +80,8 @@ func (m *MockMatchResultRepository) DeleteMatchResults(leagueId string) error {
 	args := m.Called(leagueId)
 	return args.Error(0)
 }
+
+func (m *MockMatchResultRepository) GetMatchResultByWeekAndTeam(data models.EditMatchResult) (models.MatchResult, error) {
+	args := m.Called(data)
+	return args.Get(0).(models.MatchResult), args.Error(1)
+}

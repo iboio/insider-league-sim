@@ -24,12 +24,12 @@ func TestMockSimulationServiceInterface_Simulation(t *testing.T) {
 	expectedResponse := models.SimulationResponse{
 		Matches: []models.MatchResult{
 			{
-				WeekNumber: 1,
-				Home:       "Team A",
-				HomeScore:  2,
-				Away:       "Team B",
-				AwayScore:  1,
-				Winner:     "Team A",
+				MatchWeek: 1,
+				Home:      "Team A",
+				HomeScore: 2,
+				Away:      "Team B",
+				AwayScore: 1,
+				Winner:    "Team A",
 			},
 		},
 		UpcomingFixtures: []models.Week{},
@@ -56,14 +56,13 @@ func TestMockSimulationServiceInterface_EditMatch(t *testing.T) {
 
 	// Setup expectations
 	testData := models.EditMatchResult{
-		WeekNumber:   1,
-		LeagueId:     "test-league-id",
-		TeamName:     "Team A",
-		TeamType:     "home",
-		AgainstTeam:  "Team B",
-		TeamOldGoals: 1,
-		Goals:        2,
-		IsDraw:       false,
+		MatchWeek: 1,
+		LeagueId:  "test-league-id",
+		Home:      "Team A",
+		Away:      "Team B",
+		HomeScore: 2,
+		AwayScore: 1,
+		Winner:    "Team A",
 	}
 
 	mockService.On("EditMatch", testData).Return(nil)

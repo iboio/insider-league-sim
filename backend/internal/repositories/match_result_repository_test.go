@@ -32,20 +32,20 @@ func TestMatchResultRepository_GetMatchResults_Success(t *testing.T) {
 	leagueId := "test-league-id"
 	expectedResults := []models.MatchResult{
 		{
-			Home:       "Team A",
-			HomeScore:  2,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Team A",
-			WeekNumber: 1,
+			Home:      "Team A",
+			HomeScore: 2,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Team A",
+			MatchWeek: 1,
 		},
 		{
-			Home:       "Team C",
-			HomeScore:  0,
-			Away:       "Team D",
-			AwayScore:  3,
-			Winner:     "Team D",
-			WeekNumber: 1,
+			Home:      "Team C",
+			HomeScore: 0,
+			Away:      "Team D",
+			AwayScore: 3,
+			Winner:    "Team D",
+			MatchWeek: 1,
 		},
 	}
 
@@ -158,20 +158,20 @@ func TestMatchResultRepository_SetMatchResults_Success(t *testing.T) {
 	leagueId := "test-league-id"
 	matchResults := []models.MatchResult{
 		{
-			Home:       "Team A",
-			HomeScore:  2,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Team A",
-			WeekNumber: 1,
+			Home:      "Team A",
+			HomeScore: 2,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Team A",
+			MatchWeek: 1,
 		},
 		{
-			Home:       "Team C",
-			HomeScore:  0,
-			Away:       "Team D",
-			AwayScore:  3,
-			Winner:     "Team D",
-			WeekNumber: 1,
+			Home:      "Team C",
+			HomeScore: 0,
+			Away:      "Team D",
+			AwayScore: 3,
+			Winner:    "Team D",
+			MatchWeek: 1,
 		},
 	}
 
@@ -220,12 +220,12 @@ func TestMatchResultRepository_SetMatchResults_DatabaseError(t *testing.T) {
 	leagueId := "test-league-id"
 	matchResults := []models.MatchResult{
 		{
-			Home:       "Team A",
-			HomeScore:  2,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Team A",
-			WeekNumber: 1,
+			Home:      "Team A",
+			HomeScore: 2,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Team A",
+			MatchWeek: 1,
 		},
 	}
 
@@ -253,16 +253,18 @@ func TestMatchResultRepository_EditMatchScore_Success(t *testing.T) {
 
 	// Test data
 	editData := models.EditMatchResult{
-		LeagueId:   "test-league-id",
-		TeamName:   "Team A",
-		TeamType:   "home",
-		Goals:      3,
-		WeekNumber: 1,
+		LeagueId:  "test-league-id",
+		Home:      "Team A",
+		Away:      "Team B",
+		HomeScore: 3,
+		AwayScore: 1,
+		Winner:    "Team A",
+		MatchWeek: 1,
 	}
 
 	// Mock expectations
-	mock.ExpectExec("UPDATE match_results SET winnerName = \\?, homeGoals = 3 WHERE leagueId = \\? AND matchWeek = \\? AND homeTeam = 'Team A'").
-		WithArgs("Team A", "test-league-id", 1).
+	mock.ExpectExec("UPDATE match_results SET homeGoals = \\?, awayGoals = \\?, winnerName = \\? WHERE leagueId = \\? AND matchWeek = \\? AND homeTeam = \\? AND awayTeam = \\?").
+		WithArgs(3, 1, "Team A", "test-league-id", 1, "Team A", "Team B").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	// Execute
@@ -282,16 +284,18 @@ func TestMatchResultRepository_EditMatchScore_AwayTeam(t *testing.T) {
 
 	// Test data
 	editData := models.EditMatchResult{
-		LeagueId:   "test-league-id",
-		TeamName:   "Team B",
-		TeamType:   "away",
-		Goals:      2,
-		WeekNumber: 1,
+		LeagueId:  "test-league-id",
+		Home:      "Team A",
+		Away:      "Team B",
+		HomeScore: 1,
+		AwayScore: 2,
+		Winner:    "Team B",
+		MatchWeek: 1,
 	}
 
 	// Mock expectations
-	mock.ExpectExec("UPDATE match_results SET winnerName = \\?, awayGoals = 2 WHERE leagueId = \\? AND matchWeek = \\? AND awayTeam = 'Team B'").
-		WithArgs("Team B", "test-league-id", 1).
+	mock.ExpectExec("UPDATE match_results SET homeGoals = \\?, awayGoals = \\?, winnerName = \\? WHERE leagueId = \\? AND matchWeek = \\? AND homeTeam = \\? AND awayTeam = \\?").
+		WithArgs(1, 2, "Team B", "test-league-id", 1, "Team A", "Team B").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	// Execute
@@ -311,24 +315,27 @@ func TestMatchResultRepository_EditMatchScore_DatabaseError(t *testing.T) {
 
 	// Test data
 	editData := models.EditMatchResult{
-		LeagueId:   "test-league-id",
-		TeamName:   "Team A",
-		TeamType:   "home",
-		Goals:      3,
-		WeekNumber: 1,
+		LeagueId:  "test-league-id",
+		Home:      "Team A",
+		Away:      "Team B",
+		HomeScore: 3,
+		AwayScore: 1,
+		Winner:    "Team A",
+		MatchWeek: 1,
 	}
 
 	// Mock expectations
 	expectedError := errors.New("update failed")
-	mock.ExpectExec("UPDATE match_results SET winnerName = \\?, homeGoals = 3 WHERE leagueId = \\? AND matchWeek = \\? AND homeTeam = 'Team A'").
-		WithArgs("Team A", "test-league-id", 1).
+	mock.ExpectExec("UPDATE match_results SET homeGoals = \\?, awayGoals = \\?, winnerName = \\? WHERE leagueId = \\? AND matchWeek = \\? AND homeTeam = \\? AND awayTeam = \\?").
+		WithArgs(3, 1, "Team A", "test-league-id", 1, "Team A", "Team B").
 		WillReturnError(expectedError)
 
-	// Execute and expect panic
-	assert.Panics(t, func() {
-		repo.EditMatchScore(editData)
-	}, "Should panic when update fails")
+	// Execute
+	err = repo.EditMatchScore(editData)
 
+	// Assert
+	assert.Error(t, err)
+	assert.Equal(t, expectedError, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -414,12 +421,12 @@ func TestMatchResultRepository_SetMatchResults_SingleResult(t *testing.T) {
 	leagueId := "test-league-id"
 	matchResults := []models.MatchResult{
 		{
-			Home:       "Team A",
-			HomeScore:  1,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Draw",
-			WeekNumber: 2,
+			Home:      "Team A",
+			HomeScore: 1,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Draw",
+			MatchWeek: 2,
 		},
 	}
 
@@ -468,12 +475,12 @@ func BenchmarkMatchResultRepository_SetMatchResults(b *testing.B) {
 	repo := NewMatchResultRepository(db)
 	matchResults := []models.MatchResult{
 		{
-			Home:       "Team A",
-			HomeScore:  2,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Team A",
-			WeekNumber: 1,
+			Home:      "Team A",
+			HomeScore: 2,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Team A",
+			MatchWeek: 1,
 		},
 	}
 
