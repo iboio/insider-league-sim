@@ -23,7 +23,7 @@ type EditMatchResult struct {
 	TeamName     string `json:"teamName"`
 	TeamType     string `json:"teamType"`
 	AgainstTeam  string `json:"againstTeam"`
-	TeamOldGoals int    `json:"teamOldPoints"`
+	TeamOldGoals int    `json:"teamOldGoals"`
 	Goals        int    `json:"goals"`
 	IsDraw       bool   `json:"isDraw"`
 }

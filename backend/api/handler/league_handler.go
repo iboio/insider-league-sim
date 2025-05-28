@@ -118,28 +118,6 @@ func DeleteLeague(c echo.Context) error {
 	return c.JSON(http.StatusOK, leagueId)
 }
 
-func EditMatch(c echo.Context) error {
-	var body models.EditMatchResult
-
-	if err := c.Bind(&body); err != nil {
-
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	leagueId := c.Param("leagueId")
-	body.LeagueId = leagueId
-	service := c.Request().Context().Value("services").(services.Service)
-
-	err := service.SimulationService().EditMatch(body)
-	if err != nil {
-		fmt.Println("Error editing match:", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to edit match")
-	}
-
-	return c.JSON(http.StatusOK, "Standings updated successfully")
-}
-
 func GetPredictTable(c echo.Context) error {
 	leagueId := c.Param("leagueId")
 	service := c.Request().Context().Value("services").(services.Service)

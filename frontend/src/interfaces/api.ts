@@ -28,9 +28,21 @@ export interface SimulationResponse {
 }
 
 export interface EditMatchData {
+    weekNumber: number;
     teamName: string;
+    teamType: 'home' | 'away';
     againstTeam: string;
     teamOldGoals: number;
     goals: number;
     isDraw: boolean;
+    winner: string;
+}
+
+export interface MatchResult {
+    weekNumber: number;
+    home: string;
+    homeScore: number;
+    away: string;
+    awayScore: number;
+    winner: string;
 }

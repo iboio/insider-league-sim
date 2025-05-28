@@ -22,7 +22,6 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 	var matches []models.MatchResult
 	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(leagueId)
 	if err != nil {
-		panic(err)
 		return models.SimulationResponse{}, err
 	}
 
@@ -209,8 +208,8 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 	againstTeamStanding := standingsMap[data.AgainstTeam]
 
 	if data.IsDraw {
-		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
-		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
+		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - data.TeamOldGoals)
+		teamStanding.Goals = teamStanding.Goals + (data.Goals - data.TeamOldGoals)
 
 		teamStanding.Points += 2
 		againstTeamStanding.Points -= 1
@@ -218,8 +217,8 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 		teamStanding.Wins += 1
 
 	} else {
-		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - teamStanding.Goals)
-		teamStanding.Goals = teamStanding.Goals + (data.Goals - teamStanding.Goals)
+		againstTeamStanding.Against = againstTeamStanding.Against + (data.Goals - data.TeamOldGoals)
+		teamStanding.Goals = teamStanding.Goals + (data.Goals - data.TeamOldGoals)
 		teamStanding.Points += 3
 		againstTeamStanding.Points -= 3
 

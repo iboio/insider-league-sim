@@ -22,26 +22,8 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { Edit, Trophy } from 'lucide-react';
+import type {EditMatchData, MatchResult} from "@/interfaces/api.ts";
 
-interface MatchResult {
-    weekNumber: number;
-    home: string;
-    homeScore: number;
-    away: string;
-    awayScore: number;
-    winner: string;
-}
-
-interface EditMatchData {
-    weekNumber: number;
-    teamName: string;
-    teamType: 'home' | 'away';
-    againstTeam: string;
-    teamOldGoals: number;
-    goals: number;
-    isDraw: boolean;
-    winner: string;
-}
 
 interface MatchResultsProps {
     matches: MatchResult[] | null | undefined;
@@ -288,7 +270,7 @@ export const MatchResults = ({ matches, leagueId, onMatchUpdate }: MatchResultsP
                 </CardContent>
             </Card>
 
-            {/* Edit Dialog */}
+        {/* Edit Dialog */}
             <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>

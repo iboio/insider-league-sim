@@ -227,10 +227,13 @@ func TestSimulationService_Simulation_GetActiveLeagueError(t *testing.T) {
 	// Create service
 	service := NewSimulationService(mockAppCtx)
 
-	// Execute and expect panic
-	assert.Panics(t, func() {
-		service.Simulation(leagueId, false)
-	}, "Should panic when GetActiveLeague fails")
+	// Execute - should return error instead of panic
+	result, err := service.Simulation(leagueId, false)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Equal(t, expectedError, err)
+	assert.Empty(t, result.Matches)
 
 	// Verify mock expectations
 	mockAppCtx.AssertExpectations(t)
@@ -527,6 +530,144 @@ func TestSimulationService_EditMatch_MoraleCapLimits(t *testing.T) {
 	mockMatchResultRepo.AssertExpectations(t)
 }
 
+func TestSimulationService_EditMatch_DetailedWinScenario(t *testing.T) {
+	// Setup mocks
+	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
+	mockMatchResultRepo := &interfaces.MockMatchResultRepository{}
+
+	// Test data - Team A wins with 2 goals difference
+	editData := models.EditMatchResult{
+		LeagueId:     "test-league-id",
+		TeamName:     "Team A",
+		AgainstTeam:  "Team B",
+		Goals:        4,
+		TeamType:     "home",
+		WeekNumber:   1,
+		TeamOldGoals: 2,
+		IsDraw:       false,
+	}
+
+	initialTeamAMorale := float64(60)
+	initialTeamBMorale := float64(70)
+
+	activeLeague := models.League{
+		LeagueID: editData.LeagueId,
+		Teams: []models.Team{
+			{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+			{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+		},
+		Standings: []models.Standings{
+			{
+				Team:    models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+				Points:  1,
+				Wins:    0,
+				Losses:  0,
+				Goals:   2,
+				Against: 3,
+			},
+			{
+				Team:    models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+				Points:  1,
+				Wins:    0,
+				Losses:  0,
+				Goals:   3,
+				Against: 2,
+			},
+		},
+	}
+
+	// Configure mock expectations
+	mockActiveLeagueRepo.On("GetActiveLeague", editData.LeagueId).Return(activeLeague, nil)
+	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
+	mockMatchResultRepo.On("EditMatchScore", editData).Return(nil)
+
+	// Create test AppContext
+	mockAppCtx := createTestAppContext(mockActiveLeagueRepo, mockMatchResultRepo)
+
+	// Create service
+	service := NewSimulationService(mockAppCtx)
+
+	// Execute
+	err := service.EditMatch(editData)
+
+	// Assert
+	assert.NoError(t, err)
+
+	// Verify mock expectations
+	mockAppCtx.AssertExpectations(t)
+	mockActiveLeagueRepo.AssertExpectations(t)
+	mockMatchResultRepo.AssertExpectations(t)
+}
+
+func TestSimulationService_EditMatch_DetailedDrawScenario(t *testing.T) {
+	// Setup mocks
+	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
+	mockMatchResultRepo := &interfaces.MockMatchResultRepository{}
+
+	// Test data - Draw scenario
+	editData := models.EditMatchResult{
+		LeagueId:     "test-league-id",
+		TeamName:     "Team A",
+		AgainstTeam:  "Team B",
+		Goals:        2,
+		TeamType:     "home",
+		WeekNumber:   1,
+		TeamOldGoals: 1,
+		IsDraw:       true,
+	}
+
+	initialTeamAMorale := float64(50)
+	initialTeamBMorale := float64(80)
+
+	activeLeague := models.League{
+		LeagueID: editData.LeagueId,
+		Teams: []models.Team{
+			{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+			{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+		},
+		Standings: []models.Standings{
+			{
+				Team:    models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+				Points:  0,
+				Wins:    0,
+				Losses:  1,
+				Goals:   1,
+				Against: 2,
+			},
+			{
+				Team:    models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+				Points:  3,
+				Wins:    1,
+				Losses:  0,
+				Goals:   2,
+				Against: 1,
+			},
+		},
+	}
+
+	// Configure mock expectations
+	mockActiveLeagueRepo.On("GetActiveLeague", editData.LeagueId).Return(activeLeague, nil)
+	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
+	mockMatchResultRepo.On("EditMatchScore", editData).Return(nil)
+
+	// Create test AppContext
+	mockAppCtx := createTestAppContext(mockActiveLeagueRepo, mockMatchResultRepo)
+
+	// Create service
+	service := NewSimulationService(mockAppCtx)
+
+	// Execute
+	err := service.EditMatch(editData)
+
+	// Assert
+	assert.NoError(t, err)
+
+	// Verify mock expectations
+	mockAppCtx.AssertExpectations(t)
+	mockActiveLeagueRepo.AssertExpectations(t)
+	mockMatchResultRepo.AssertExpectations(t)
+}
+
 func TestGenerateMatchResult_HomeWins(t *testing.T) {
 	// Test data - home team much stronger
 	homeTeam := models.Team{
@@ -753,7 +894,7 @@ func TestSimulationService_EditMatch_GetActiveLeagueError(t *testing.T) {
 func TestSimulationService_EditMatch_SetActiveLeagueError(t *testing.T) {
 	// Setup mocks
 	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-	mockAppCtx := &MockAppContext{}
+	mockMatchResultRepo := &interfaces.MockMatchResultRepository{}
 
 	// Test data
 	editData := models.EditMatchResult{
@@ -795,9 +936,12 @@ func TestSimulationService_EditMatch_SetActiveLeagueError(t *testing.T) {
 	expectedError := errors.New("failed to set active league")
 
 	// Configure mock expectations
-	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
 	mockActiveLeagueRepo.On("GetActiveLeague", editData.LeagueId).Return(activeLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(expectedError)
+	// Note: MatchResultRepository won't be called if SetActiveLeague fails and returns nil
+
+	// Create test AppContext
+	mockAppCtx := createTestAppContext(mockActiveLeagueRepo, mockMatchResultRepo)
 
 	// Create service
 	service := NewSimulationService(mockAppCtx)
@@ -805,13 +949,14 @@ func TestSimulationService_EditMatch_SetActiveLeagueError(t *testing.T) {
 	// Execute
 	err := service.EditMatch(editData)
 
-	// Assert - Note: The current implementation returns nil instead of the error from SetActiveLeague
+	// Assert - The current implementation returns nil even when SetActiveLeague fails
 	// This might be a bug in the implementation, but we test the current behavior
 	assert.NoError(t, err)
 
 	// Verify mock expectations
 	mockAppCtx.AssertExpectations(t)
 	mockActiveLeagueRepo.AssertExpectations(t)
+	// mockMatchResultRepo expectations are not set since it won't be called
 }
 
 func TestSimulationService_EditMatch_EditMatchScoreError(t *testing.T) {
