@@ -85,12 +85,12 @@ func TestStartSimulation_Success(t *testing.T) {
 	expectedResponse := models.SimulationResponse{
 		Matches: []models.MatchResult{
 			{
-				WeekNumber: 1,
-				Home:       "Team A",
-				HomeScore:  2,
-				Away:       "Team B",
-				AwayScore:  1,
-				Winner:     "Team A",
+				MatchWeek: 1,
+				Home:      "Team A",
+				HomeScore: 2,
+				Away:      "Team B",
+				AwayScore: 1,
+				Winner:    "Team A",
 			},
 		},
 		UpcomingFixtures: []models.Week{},
@@ -145,8 +145,8 @@ func TestStartSimulation_PlayAllFixtures(t *testing.T) {
 	// Mock data
 	expectedResponse := models.SimulationResponse{
 		Matches: []models.MatchResult{
-			{WeekNumber: 1, Home: "Team A", HomeScore: 2, Away: "Team B", AwayScore: 1, Winner: "Team A"},
-			{WeekNumber: 2, Home: "Team C", HomeScore: 1, Away: "Team D", AwayScore: 3, Winner: "Team D"},
+			{MatchWeek: 1, Home: "Team A", HomeScore: 2, Away: "Team B", AwayScore: 1, Winner: "Team A"},
+			{MatchWeek: 2, Home: "Team C", HomeScore: 1, Away: "Team D", AwayScore: 3, Winner: "Team D"},
 		},
 		UpcomingFixtures: []models.Week{},
 		PlayedFixtures: []models.Week{
@@ -334,20 +334,20 @@ func TestGetMatchResults_Success(t *testing.T) {
 	// Mock data
 	expectedResults := []models.MatchResult{
 		{
-			WeekNumber: 1,
-			Home:       "Team A",
-			HomeScore:  2,
-			Away:       "Team B",
-			AwayScore:  1,
-			Winner:     "Team A",
+			MatchWeek: 1,
+			Home:      "Team A",
+			HomeScore: 2,
+			Away:      "Team B",
+			AwayScore: 1,
+			Winner:    "Team A",
 		},
 		{
-			WeekNumber: 1,
-			Home:       "Team C",
-			HomeScore:  0,
-			Away:       "Team D",
-			AwayScore:  3,
-			Winner:     "Team D",
+			MatchWeek: 1,
+			Home:      "Team C",
+			HomeScore: 0,
+			Away:      "Team D",
+			AwayScore: 3,
+			Winner:    "Team D",
 		},
 	}
 	mockMatchResultRepo := &interfaces.MockMatchResultRepository{}

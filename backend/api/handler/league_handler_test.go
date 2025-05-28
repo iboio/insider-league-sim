@@ -465,9 +465,12 @@ func TestEditMatch_Success(t *testing.T) {
 	// Setup
 	e := echo.New()
 	requestBody := models.EditMatchResult{
-		TeamName:    "Team A",
-		AgainstTeam: "Team B",
-		Goals:       3,
+		Home:      "Team A",
+		Away:      "Team B",
+		HomeScore: 3,
+		AwayScore: 1,
+		MatchWeek: 1,
+		Winner:    "Team A",
 	}
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPut, "/api/v1/league/test-league", bytes.NewBuffer(jsonBody))
