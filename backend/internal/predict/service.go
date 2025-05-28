@@ -19,36 +19,6 @@ func NewPredictService(ctx appContext.AppContext) *Predict {
 	}
 }
 
-func (a *Predict) PredictChampionshipPreSeason(id string) ([]models.PredictedStanding, error) {
-	teams, err := a.appCtx.ActiveLeagueRepository().GetActiveLeagueTeams(id)
-
-	if err != nil {
-		fmt.Println("Error getting league data:", err)
-		return nil, err
-	}
-
-	totalStrength := 0.0
-	var predictTable []models.PredictedStanding
-
-	for _, t := range teams {
-		str := league.CalculateStrength(t)
-		totalStrength += str
-	}
-
-	for _, t := range teams {
-		str := league.CalculateStrength(t)
-		predictTable = append(
-			predictTable, models.PredictedStanding{
-				TeamName:   t.Name,
-				Strength:   str,
-				Odds:       str / totalStrength * 100,
-				Eliminated: false,
-			})
-	}
-
-	return predictTable, nil
-}
-
 func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStanding, error) {
 	standings, err := a.appCtx.ActiveLeagueRepository().GetActiveLeaguesStandings(id)
 

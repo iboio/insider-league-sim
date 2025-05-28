@@ -50,136 +50,6 @@ func TestNewPredictService(t *testing.T) {
 	assert.Equal(t, mockAppCtx, service.appCtx)
 }
 
-func TestPredict_PredictChampionshipPreSeason_Success(t *testing.T) {
-	// Setup config values for testing
-	config.WeightPoints = 0.4
-	config.WeightsStrength = 0.6
-
-	// Setup mocks
-	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-	mockAppCtx := &MockAppContext{}
-
-	// Test data
-	leagueId := "test-league-id"
-	teams := []models.Team{
-		{
-			Name:         "Team A",
-			AttackPower:  80.0,
-			DefensePower: 80.0,
-			Stamina:      80.0,
-			Morale:       80.0,
-		},
-		{
-			Name:         "Team B",
-			AttackPower:  90.0,
-			DefensePower: 70.0,
-			Stamina:      75.0,
-			Morale:       85.0,
-		},
-		{
-			Name:         "Team C",
-			AttackPower:  70.0,
-			DefensePower: 90.0,
-			Stamina:      85.0,
-			Morale:       75.0,
-		},
-	}
-
-	// Configure mock expectations
-	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockActiveLeagueRepo.On("GetActiveLeagueTeams", leagueId).Return(teams, nil)
-
-	// Create service
-	service := NewPredictService(mockAppCtx)
-
-	// Execute
-	result, err := service.PredictChampionshipPreSeason(leagueId)
-
-	// Assert
-	assert.NoError(t, err)
-	assert.Len(t, result, 3, "Should return predictions for all teams")
-
-	// Verify all teams are included
-	teamNames := make(map[string]bool)
-	totalOdds := 0.0
-	for _, prediction := range result {
-		teamNames[prediction.TeamName] = true
-		totalOdds += prediction.Odds
-		assert.False(t, prediction.Eliminated, "No team should be eliminated in pre-season")
-		assert.Greater(t, prediction.Strength, 0.0, "Strength should be positive")
-		assert.Greater(t, prediction.Odds, 0.0, "Odds should be positive")
-	}
-
-	// Verify all teams are present
-	assert.True(t, teamNames["Team A"])
-	assert.True(t, teamNames["Team B"])
-	assert.True(t, teamNames["Team C"])
-
-	// Verify odds sum to approximately 100%
-	assert.InDelta(t, 100.0, totalOdds, 0.001, "Total odds should sum to 100%")
-
-	// Verify mock expectations
-	mockAppCtx.AssertExpectations(t)
-	mockActiveLeagueRepo.AssertExpectations(t)
-}
-
-func TestPredict_PredictChampionshipPreSeason_GetTeamsError(t *testing.T) {
-	// Setup mocks
-	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-	mockAppCtx := &MockAppContext{}
-
-	// Test data
-	leagueId := "test-league-id"
-	expectedError := errors.New("failed to get teams")
-
-	// Configure mock expectations
-	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockActiveLeagueRepo.On("GetActiveLeagueTeams", leagueId).Return([]models.Team{}, expectedError)
-
-	// Create service
-	service := NewPredictService(mockAppCtx)
-
-	// Execute
-	result, err := service.PredictChampionshipPreSeason(leagueId)
-
-	// Assert
-	assert.Error(t, err)
-	assert.Equal(t, expectedError, err)
-	assert.Nil(t, result)
-
-	// Verify mock expectations
-	mockAppCtx.AssertExpectations(t)
-	mockActiveLeagueRepo.AssertExpectations(t)
-}
-
-func TestPredict_PredictChampionshipPreSeason_EmptyTeams(t *testing.T) {
-	// Setup mocks
-	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-	mockAppCtx := &MockAppContext{}
-
-	// Test data
-	leagueId := "test-league-id"
-	teams := []models.Team{}
-
-	// Configure mock expectations
-	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockActiveLeagueRepo.On("GetActiveLeagueTeams", leagueId).Return(teams, nil)
-
-	// Create service
-	service := NewPredictService(mockAppCtx)
-
-	// Execute
-	result, err := service.PredictChampionshipPreSeason(leagueId)
-
-	// Assert
-	assert.NoError(t, err)
-	assert.Empty(t, result, "Should return empty result for empty teams")
-
-	// Verify mock expectations
-	mockAppCtx.AssertExpectations(t)
-	mockActiveLeagueRepo.AssertExpectations(t)
-}
-
 func TestPredict_PredictChampionShipSession_Success(t *testing.T) {
 	// Setup config values for testing
 	config.WeightPoints = 0.4
@@ -472,10 +342,11 @@ func TestFindLeaderPoints(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := findLeaderPoints(tt.standings)
-			assert.Equal(t, tt.expectedMaxPoints, result, "Should return correct maximum points")
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				result := findLeaderPoints(tt.standings)
+				assert.Equal(t, tt.expectedMaxPoints, result, "Should return correct maximum points")
+			})
 	}
 }
 
@@ -560,10 +431,11 @@ func TestFindLeader(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := FindLeader(tt.standings)
-			assert.Equal(t, tt.expectedLeader, result.Name, "Should return correct leader")
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				result := FindLeader(tt.standings)
+				assert.Equal(t, tt.expectedLeader, result.Name, "Should return correct leader")
+			})
 	}
 }
 
@@ -575,34 +447,6 @@ func TestFindLeader_EmptyStandings(t *testing.T) {
 
 	// Should return empty team
 	assert.Equal(t, "", result.Name, "Should return empty team for empty standings")
-}
-
-// Benchmark tests
-func BenchmarkPredict_PredictChampionshipPreSeason(b *testing.B) {
-	// Setup config values
-	config.WeightPoints = 0.4
-	config.WeightsStrength = 0.6
-
-	// Setup mocks
-	mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-	mockAppCtx := &MockAppContext{}
-
-	teams := []models.Team{
-		{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80},
-		{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 80, Morale: 80},
-		{Name: "Team C", AttackPower: 75, DefensePower: 85, Stamina: 80, Morale: 80},
-		{Name: "Team D", AttackPower: 70, DefensePower: 70, Stamina: 70, Morale: 70},
-	}
-
-	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockActiveLeagueRepo.On("GetActiveLeagueTeams", "test-league").Return(teams, nil)
-
-	service := NewPredictService(mockAppCtx)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		service.PredictChampionshipPreSeason("test-league")
-	}
 }
 
 func BenchmarkPredict_PredictChampionShipSession(b *testing.B) {
