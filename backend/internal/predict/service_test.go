@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"league-sim/config"
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
 

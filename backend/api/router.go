@@ -2,20 +2,19 @@ package api
 
 import (
 	"fmt"
+	"league-sim/internal/appContext"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"league-sim/api/handler"
 	"league-sim/config"
-	appContext "league-sim/internal/contexts/appContexts"
-	"league-sim/internal/contexts/services"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func StartServer(appCtx appContext.AppContext, services services.Service) error {
+func StartServer(appCtx appContext.AppContext) error {
 	e := echo.New()
 	e.Use(
 		middleware.CORSWithConfig(
@@ -43,7 +42,6 @@ func StartServer(appCtx appContext.AppContext, services services.Service) error 
 		})
 
 	e.Use(handler.ContextMiddleware(appCtx))
-	e.Use(handler.ServiceMiddleware(services))
 	v1 := e.Group("/api/v1")
 
 	v1.GET("/league", handler.GetLeagueIds)                           // Get all league IDs
@@ -51,7 +49,7 @@ func StartServer(appCtx appContext.AppContext, services services.Service) error 
 	v1.GET("/league/:leagueId/fixtures", handler.GetFixtures)         // Get fixtures for a league by ID
 	v1.GET("/league/:leagueId/predict", handler.GetPredictTable)      // Get simulation results for a league by ID
 	v1.GET("/league/:leagueId/matchResults", handler.GetMatchResults) // Get match results for a league by ID
-
+	
 	v1.POST("/league", handler.CreateLeague)                         // Create a new league
 	v1.POST("/league/:leagueId/simulation", handler.StartSimulation) // Start a league simulation
 	v1.POST("/league/:leagueId/reset", handler.ResetLeague)          // Create fixtures for a league by ID

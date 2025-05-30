@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	leagueInterfaces "league-sim/internal/league/interfaces"
 	"league-sim/internal/models"
 	predictInterfaces "league-sim/internal/predict/interfaces"
@@ -120,9 +120,10 @@ func TestGetLeagueIds_MissingAppContext(t *testing.T) {
 	c.SetRequest(c.Request().WithContext(ctx))
 
 	// Execute and expect panic due to type assertion
-	assert.Panics(t, func() {
-		GetLeagueIds(c)
-	}, "Should panic when app context is nil")
+	assert.Panics(
+		t, func() {
+			GetLeagueIds(c)
+		}, "Should panic when app context is nil")
 }
 
 func TestGetLeagueIds_RepositoryError(t *testing.T) {
@@ -259,9 +260,10 @@ func TestCreateLeague_MissingAppContext(t *testing.T) {
 	c.SetRequest(c.Request().WithContext(ctx))
 
 	// Execute and expect panic due to type assertion
-	assert.Panics(t, func() {
-		CreateLeague(c)
-	}, "Should panic when app context is nil")
+	assert.Panics(
+		t, func() {
+			CreateLeague(c)
+		}, "Should panic when app context is nil")
 }
 
 func TestCreateLeague_ServiceError(t *testing.T) {
@@ -282,7 +284,9 @@ func TestCreateLeague_ServiceError(t *testing.T) {
 
 	// Configure mocks
 	mockService.On("LeagueService").Return(mockLeagueService)
-	mockLeagueService.On("CreateLeague", "8", "Test League").Return(models.GetLeaguesIdsWithNameResponse{}, expectedError)
+	mockLeagueService.On("CreateLeague", "8", "Test League").Return(
+		models.GetLeaguesIdsWithNameResponse{},
+		expectedError)
 
 	// Set context
 	ctx := c.Request().Context()
@@ -394,7 +398,10 @@ func TestGetFixtures_Success(t *testing.T) {
 	// Mock data
 	expectedFixtures := models.GetActiveLeagueFixturesResponse{
 		UpcomingFixtures: []models.Week{
-			{Number: 1, Matches: []models.Match{{Home: &models.Team{Name: "Team A"}, Away: &models.Team{Name: "Team B"}}}},
+			{
+				Number:  1,
+				Matches: []models.Match{{Home: &models.Team{Name: "Team A"}, Away: &models.Team{Name: "Team B"}}},
+			},
 		},
 		PlayedFixtures: []models.Week{},
 	}

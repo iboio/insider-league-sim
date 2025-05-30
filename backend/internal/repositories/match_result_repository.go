@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"league-sim/internal/layers/infra"
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
 	"strings"
@@ -13,8 +14,8 @@ type matchResultRepository struct {
 	db *sql.DB
 }
 
-func NewMatchResultRepository(db *sql.DB) interfaces.MatchResultRepository {
-	return &matchResultRepository{db: db}
+func NewMatchResultRepository(db *infra.Infra) interfaces.MatchResultRepository {
+	return &matchResultRepository{db: db.MysqlConn}
 }
 
 func (mrr *matchResultRepository) GetMatchResults(leagueId string) ([]models.MatchResult, error) {

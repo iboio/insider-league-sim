@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"league-sim/config"
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	leagueInterfaces "league-sim/internal/league/interfaces"
 	predictInterfaces "league-sim/internal/predict/interfaces"
 	"league-sim/internal/repositories/interfaces"

@@ -2,24 +2,21 @@ package handler
 
 import (
 	"fmt"
-	"net/http"
-
-	appContext "league-sim/internal/contexts/appContexts"
-	"league-sim/internal/contexts/services"
+	"league-sim/internal/appContext"
 	"league-sim/internal/models"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 func GetLeagueIds(c echo.Context) error {
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
-	if !ok || appCtx == nil {
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	leagueIds, err := appCtx.LeagueRepository().GetLeague()
-
+	leagueIds, err := appCtx.Adapt.LeagueRepository().GetLeague()
 	if err != nil {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get league IDs")
@@ -28,26 +25,19 @@ func GetLeagueIds(c echo.Context) error {
 	return c.JSON(http.StatusOK, leagueIds)
 }
 
-func GetLeague(c echo.Context) error {
-	leagueId := c.Param("leagueId")
-
-	return c.JSON(http.StatusOK, leagueId)
-}
-
 func CreateLeague(c echo.Context) error {
 	var body models.CreateLeagueRequest
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
-	if !ok || appCtx == nil {
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	serviceInit := c.Request().Context().Value("services").(services.Service)
-	result, err := serviceInit.LeagueService().CreateLeague(body.TeamCount, body.LeagueName)
+	result, err := appCtx.Service.LeagueService().CreateLeague(body.TeamCount, body.LeagueName)
 
 	if err != nil {
 
@@ -58,37 +48,30 @@ func CreateLeague(c echo.Context) error {
 }
 
 func GetStanding(c echo.Context) error {
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
-
-	if !ok || appCtx == nil {
-
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
 	leagueId := c.Param("leagueId")
-	standings, err := appCtx.ActiveLeagueRepository().GetActiveLeaguesStandings(leagueId)
-
+	standings, err := appCtx.Adapt.ActiveLeagueRepository().GetActiveLeaguesStandings(leagueId)
 	if err != nil {
-		fmt.Println(err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get standings")
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, standings)
 }
 
 func GetFixtures(c echo.Context) error {
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
-
-	if !ok || appCtx == nil {
-
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
 	leagueId := c.Param("leagueId")
-	fixtures, err := appCtx.ActiveLeagueRepository().GetActiveLeaguesFixtures(leagueId)
+	fixtures, err := appCtx.Adapt.ActiveLeagueRepository().GetActiveLeaguesFixtures(leagueId)
 
 	if err != nil {
 
@@ -101,14 +84,13 @@ func GetFixtures(c echo.Context) error {
 func DeleteLeague(c echo.Context) error {
 	leagueId := c.Param("leagueId")
 
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
-	if !ok || appCtx == nil {
-
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	err := appCtx.LeagueRepository().DeleteLeague(leagueId)
+	err := appCtx.Adapt.LeagueRepository().DeleteLeague(leagueId)
 
 	if err != nil {
 
@@ -119,9 +101,14 @@ func DeleteLeague(c echo.Context) error {
 }
 
 func GetPredictTable(c echo.Context) error {
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
+	}
+
 	leagueId := c.Param("leagueId")
-	service := c.Request().Context().Value("services").(services.Service)
-	predictTable, err := service.PredictService().PredictChampionShipSession(leagueId)
+	predictTable, err := appCtx.Service.PredictionService().PredictChampionShipSession(leagueId)
 
 	if err != nil {
 		fmt.Println("Error predicting championship:", err)
@@ -133,10 +120,15 @@ func GetPredictTable(c echo.Context) error {
 }
 
 func ResetLeague(c echo.Context) error {
-	serviceInit := c.Request().Context().Value("services").(services.Service)
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
+	}
+
 	leagueId := c.Param("leagueId")
 
-	err := serviceInit.LeagueService().ResetLeague(leagueId)
+	err := appCtx.Service.LeagueService().ResetLeague(leagueId)
 
 	if err != nil {
 		fmt.Println("Error resetting league:", err)

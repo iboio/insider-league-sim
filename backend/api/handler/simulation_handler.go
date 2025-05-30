@@ -2,14 +2,11 @@ package handler
 
 import (
 	"fmt"
+	"github.com/labstack/echo/v4"
+	"league-sim/internal/appContext"
+	"league-sim/internal/models"
 	"net/http"
 	"reflect"
-
-	appContext "league-sim/internal/contexts/appContexts"
-	"league-sim/internal/contexts/services"
-	"league-sim/internal/models"
-
-	"github.com/labstack/echo/v4"
 )
 
 func StartSimulation(c echo.Context) error {
@@ -21,21 +18,14 @@ func StartSimulation(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
 	}
 
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
 
-	if !ok || appCtx == nil {
-
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	service := c.Request().Context().Value("services").(services.Service)
-	if service == nil {
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Service context missing")
-	}
-
-	result, err := service.SimulationService().Simulation(leagueId, body.PlayAllFixture)
+	result, err := appCtx.Service.SimulationService().Simulation(leagueId, body.PlayAllFixture)
 
 	if err != nil {
 
@@ -51,16 +41,17 @@ func StartSimulation(c echo.Context) error {
 }
 
 func GetMatchResults(c echo.Context) error {
-	appCtx := c.Request().Context().Value("appContext").(appContext.AppContext)
-	appCtx, ok := appCtx.(appContext.AppContext)
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
 
-	if !ok || appCtx == nil {
-
+	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
 	leagueId := c.Param("leagueId")
-	matchResults, err := appCtx.MatchResultRepository().GetMatchResults(leagueId)
+	matchResults, err := appCtx.Adapt.MatchResultRepository().GetMatchResults(leagueId)
+	if err != nil {
+	}
 
 	if err != nil {
 
@@ -78,11 +69,18 @@ func EditMatch(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
+	}
+
 	leagueId := c.Param("leagueId")
 	body.LeagueId = leagueId
-	service := c.Request().Context().Value("services").(services.Service)
 
-	err := service.SimulationService().EditMatch(body)
+	err := appCtx.Service.SimulationService().EditMatch(body)
+
 	if err != nil {
 		fmt.Println("Error editing match:", err)
 

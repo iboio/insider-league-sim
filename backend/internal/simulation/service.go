@@ -1,25 +1,29 @@
 package simulation
 
 import (
-	appContext "league-sim/internal/contexts/appContexts"
+	adaptInterface "league-sim/internal/layers/adapt/interfaces"
 	"league-sim/internal/league"
 	"league-sim/internal/models"
+	repoInterfaces "league-sim/internal/repositories/interfaces"
+	"league-sim/internal/simulation/interfaces"
 	"math/rand"
 )
 
 type SimulationService struct {
-	appCtx appContext.AppContext
+	matchResultRepo  repoInterfaces.MatchResultRepository
+	activeLeagueRepo repoInterfaces.ActiveLeagueRepository
 }
 
-func NewSimulationService(ctx appContext.AppContext) *SimulationService {
+func NewSimulationService(adapt adaptInterface.AdaptInterface) interfaces.SimulationServiceInterface {
 	return &SimulationService{
-		appCtx: ctx,
+		matchResultRepo:  adapt.MatchResultRepository(),
+		activeLeagueRepo: adapt.ActiveLeagueRepository(),
 	}
 }
 
 func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (models.SimulationResponse, error) {
 	var matches []models.MatchResult
-	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(leagueId)
+	activeLeague, err := ss.activeLeagueRepo.GetActiveLeague(leagueId)
 	if err != nil {
 		return models.SimulationResponse{}, err
 	}
@@ -118,14 +122,14 @@ func (ss *SimulationService) Simulation(leagueId string, playAllFixture bool) (m
 		activeLeague.CurrentWeek = currentFixtureWeek.Number
 	}
 
-	err = ss.appCtx.ActiveLeagueRepository().SetActiveLeague(activeLeague)
+	err = ss.activeLeagueRepo.SetActiveLeague(activeLeague)
 
 	if err != nil {
 		panic(err)
 		return models.SimulationResponse{}, err
 	}
 
-	err = ss.appCtx.MatchResultRepository().SetMatchResults(activeLeague.LeagueID, matches)
+	err = ss.matchResultRepo.SetMatchResults(activeLeague.LeagueID, matches)
 
 	if err != nil {
 		panic(err)
@@ -183,11 +187,11 @@ func GenerateMatchResult(home models.Team, away models.Team) models.MatchOutcome
 }
 
 func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
-	matching, err := ss.appCtx.MatchResultRepository().GetMatchResultByWeekAndTeam(data)
+	matching, err := ss.matchResultRepo.GetMatchResultByWeekAndTeam(data)
 	if err != nil {
 		return err
 	}
-	activeLeague, err := ss.appCtx.ActiveLeagueRepository().GetActiveLeague(data.LeagueId)
+	activeLeague, err := ss.activeLeagueRepo.GetActiveLeague(data.LeagueId)
 	if err != nil {
 		return err
 	}
@@ -288,11 +292,11 @@ func (ss *SimulationService) EditMatch(data models.EditMatchResult) error {
 		data.Winner = data.Away
 	}
 
-	err = ss.appCtx.ActiveLeagueRepository().SetActiveLeague(activeLeague)
+	err = ss.activeLeagueRepo.SetActiveLeague(activeLeague)
 	if err != nil {
 		return err
 	}
-	err = ss.appCtx.MatchResultRepository().EditMatchScore(data)
+	err = ss.matchResultRepo.EditMatchScore(data)
 	if err != nil {
 		return err
 	}

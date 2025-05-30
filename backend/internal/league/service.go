@@ -1,21 +1,27 @@
 package league
 
 import (
+	"league-sim/internal/league/interfaces"
+	repoInterfaces "league-sim/internal/repositories/interfaces"
 	"strconv"
 
-	appContext "league-sim/internal/contexts/appContexts"
 	"league-sim/internal/models"
 
 	"github.com/google/uuid"
+	adaptInterface "league-sim/internal/layers/adapt/interfaces"
 )
 
 type LeagueService struct {
-	appCtx appContext.AppContext
+	leagueRepo       repoInterfaces.LeagueRepository
+	activeLeagueRepo repoInterfaces.ActiveLeagueRepository
+	matchResultRepo  repoInterfaces.MatchResultRepository
 }
 
-func NewLeagueService(ctx appContext.AppContext) *LeagueService {
+func NewLeagueService(adapt adaptInterface.AdaptInterface) interfaces.LeagueServiceInterface {
 	return &LeagueService{
-		appCtx: ctx,
+		leagueRepo:       adapt.LeagueRepository(),
+		activeLeagueRepo: adapt.ActiveLeagueRepository(),
+		matchResultRepo:  adapt.MatchResultRepository(),
 	}
 }
 
@@ -41,14 +47,14 @@ func (ls *LeagueService) CreateLeague(n string, leagueName string) (models.GetLe
 		PlayedFixtures:   []models.Week{},
 	}
 
-	err = ls.appCtx.LeagueRepository().SetLeague(leagueId.String(), models.CreateLeagueRequest{LeagueName: leagueName})
+	err = ls.leagueRepo.SetLeague(leagueId.String(), models.CreateLeagueRequest{LeagueName: leagueName})
 
 	if err != nil {
 
 		return models.GetLeaguesIdsWithNameResponse{}, err
 	}
 
-	err = ls.appCtx.ActiveLeagueRepository().SetActiveLeague(league)
+	err = ls.activeLeagueRepo.SetActiveLeague(league)
 
 	if err != nil {
 
@@ -62,7 +68,7 @@ func (ls *LeagueService) CreateLeague(n string, leagueName string) (models.GetLe
 }
 
 func (ls *LeagueService) ResetLeague(leagueId string) error {
-	league, err := ls.appCtx.ActiveLeagueRepository().GetActiveLeague(leagueId)
+	league, err := ls.activeLeagueRepo.GetActiveLeague(leagueId)
 	if err != nil {
 
 		return err
@@ -79,12 +85,12 @@ func (ls *LeagueService) ResetLeague(leagueId string) error {
 	league.UpcomingFixtures = fixtures
 	league.PlayedFixtures = []models.Week{}
 
-	err = ls.appCtx.ActiveLeagueRepository().SetActiveLeague(league)
+	err = ls.activeLeagueRepo.SetActiveLeague(league)
 	if err != nil {
 
 		return err
 	}
-	err = ls.appCtx.MatchResultRepository().DeleteMatchResults(leagueId)
+	err = ls.matchResultRepo.DeleteMatchResults(leagueId)
 	if err != nil {
 
 		return err

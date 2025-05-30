@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"league-sim/internal/layers/infra"
 
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
@@ -11,9 +12,9 @@ type leagueRepository struct {
 	db *sql.DB
 }
 
-func NewLeagueRepository(db *sql.DB) interfaces.LeagueRepository {
+func NewLeagueRepository(db *infra.Infra) interfaces.LeagueRepository {
 	return &leagueRepository{
-		db: db,
+		db: db.MysqlConn,
 	}
 }
 

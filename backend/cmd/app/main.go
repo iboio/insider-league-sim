@@ -3,24 +3,18 @@ package main
 import (
 	"league-sim/api"
 	"league-sim/config"
-	appContext "league-sim/internal/contexts/appContexts"
-	"league-sim/internal/contexts/services"
+	"league-sim/internal/appContext"
 )
 
 func main() {
 	config.LoadConfig()
 
-	appCtx, err := appContext.AppContextInit()
+	appCtx, err := appContext.BuildAppContext()
 	if err != nil {
 		panic(err)
 	}
 
-	service, err := services.BuildService(appCtx)
-	if err != nil {
-		panic(err)
-	}
-
-	err = api.StartServer(appCtx, service)
+	err = api.StartServer(appCtx)
 	if err != nil {
 		panic(err)
 	}

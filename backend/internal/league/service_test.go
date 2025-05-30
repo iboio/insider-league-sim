@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
 
@@ -59,7 +59,10 @@ func TestLeagueService_CreateLeague_Success(t *testing.T) {
 	mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
 
-	mockLeagueRepo.On("SetLeague", mock.AnythingOfType("string"), mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
+	mockLeagueRepo.On(
+		"SetLeague",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
 
 	// Create service
@@ -112,7 +115,10 @@ func TestLeagueService_CreateLeague_LeagueRepositoryError(t *testing.T) {
 	mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
 
 	expectedError := errors.New("league repository error")
-	mockLeagueRepo.On("SetLeague", mock.AnythingOfType("string"), mock.AnythingOfType("models.CreateLeagueRequest")).Return(expectedError)
+	mockLeagueRepo.On(
+		"SetLeague",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.CreateLeagueRequest")).Return(expectedError)
 
 	// Create service
 	service := NewLeagueService(mockAppCtx)
@@ -145,7 +151,10 @@ func TestLeagueService_CreateLeague_ActiveLeagueRepositoryError(t *testing.T) {
 	mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
 
-	mockLeagueRepo.On("SetLeague", mock.AnythingOfType("string"), mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
+	mockLeagueRepo.On(
+		"SetLeague",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
 
 	expectedError := errors.New("active league repository error")
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(expectedError)
@@ -196,47 +205,52 @@ func TestLeagueService_CreateLeague_DifferentTeamCounts(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Setup mocks
-			mockLeagueRepo := &interfaces.MockLeagueRepository{}
-			mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
-			mockAppCtx := &MockAppContext{}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				// Setup mocks
+				mockLeagueRepo := &interfaces.MockLeagueRepository{}
+				mockActiveLeagueRepo := &interfaces.MockActiveLeagueRepository{}
+				mockAppCtx := &MockAppContext{}
 
-			// Configure mock expectations
-			mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
-			mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
+				// Configure mock expectations
+				mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
+				mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
 
-			mockLeagueRepo.On("SetLeague", mock.AnythingOfType("string"), mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
+				mockLeagueRepo.On(
+					"SetLeague",
+					mock.AnythingOfType("string"),
+					mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
 
-			// Capture the league data to verify team count
-			var capturedLeague models.League
-			mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Run(func(args mock.Arguments) {
-				capturedLeague = args.Get(0).(models.League)
-			}).Return(nil)
+				// Capture the league data to verify team count
+				var capturedLeague models.League
+				mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Run(
+					func(args mock.Arguments) {
+						capturedLeague = args.Get(0).(models.League)
+					}).Return(nil)
 
-			// Create service
-			service := NewLeagueService(mockAppCtx)
+				// Create service
+				service := NewLeagueService(mockAppCtx)
 
-			// Execute
-			result, err := service.CreateLeague(tt.numberOfTeams, "Test League")
+				// Execute
+				result, err := service.CreateLeague(tt.numberOfTeams, "Test League")
 
-			// Assert
-			assert.NoError(t, err)
-			assert.NotEmpty(t, result.LeagueId)
-			assert.Equal(t, "Test League", result.LeagueName)
+				// Assert
+				assert.NoError(t, err)
+				assert.NotEmpty(t, result.LeagueId)
+				assert.Equal(t, "Test League", result.LeagueName)
 
-			// Verify the captured league has correct number of teams
-			assert.Len(t, capturedLeague.Teams, tt.expectedTeams)
-			assert.Len(t, capturedLeague.Standings, tt.expectedTeams)
-			assert.Equal(t, 0, capturedLeague.CurrentWeek)
-			assert.Empty(t, capturedLeague.PlayedFixtures)
-			assert.NotEmpty(t, capturedLeague.UpcomingFixtures)
+				// Verify the captured league has correct number of teams
+				assert.Len(t, capturedLeague.Teams, tt.expectedTeams)
+				assert.Len(t, capturedLeague.Standings, tt.expectedTeams)
+				assert.Equal(t, 0, capturedLeague.CurrentWeek)
+				assert.Empty(t, capturedLeague.PlayedFixtures)
+				assert.NotEmpty(t, capturedLeague.UpcomingFixtures)
 
-			// Verify mock expectations
-			mockAppCtx.AssertExpectations(t)
-			mockLeagueRepo.AssertExpectations(t)
-			mockActiveLeagueRepo.AssertExpectations(t)
-		})
+				// Verify mock expectations
+				mockAppCtx.AssertExpectations(t)
+				mockLeagueRepo.AssertExpectations(t)
+				mockActiveLeagueRepo.AssertExpectations(t)
+			})
 	}
 }
 
@@ -419,9 +433,10 @@ func TestLeagueService_ResetLeague_VerifyResetData(t *testing.T) {
 
 	// Capture the reset league data
 	var capturedLeague models.League
-	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Run(func(args mock.Arguments) {
-		capturedLeague = args.Get(0).(models.League)
-	}).Return(nil)
+	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Run(
+		func(args mock.Arguments) {
+			capturedLeague = args.Get(0).(models.League)
+		}).Return(nil)
 
 	mockMatchResultRepo.On("DeleteMatchResults", leagueId).Return(nil)
 
@@ -481,7 +496,10 @@ func BenchmarkLeagueService_CreateLeague(b *testing.B) {
 
 	mockAppCtx.On("LeagueRepository").Return(mockLeagueRepo)
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockLeagueRepo.On("SetLeague", mock.AnythingOfType("string"), mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
+	mockLeagueRepo.On(
+		"SetLeague",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.CreateLeagueRequest")).Return(nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
 
 	service := NewLeagueService(mockAppCtx)

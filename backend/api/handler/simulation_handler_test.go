@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	leagueInterfaces "league-sim/internal/league/interfaces"
 	"league-sim/internal/models"
 	predictInterfaces "league-sim/internal/predict/interfaces"
@@ -187,7 +187,10 @@ func TestStartSimulation_PlayAllFixtures(t *testing.T) {
 func TestStartSimulation_InvalidRequestBody(t *testing.T) {
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/league/test-league/simulation", strings.NewReader("invalid json"))
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/league/test-league/simulation",
+		strings.NewReader("invalid json"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -226,9 +229,10 @@ func TestStartSimulation_MissingServiceContext(t *testing.T) {
 	c.SetRequest(c.Request().WithContext(ctx))
 
 	// Execute and expect panic due to type assertion
-	assert.Panics(t, func() {
-		StartSimulation(c)
-	}, "Should panic when service context is nil")
+	assert.Panics(
+		t, func() {
+			StartSimulation(c)
+		}, "Should panic when service context is nil")
 }
 
 func TestStartSimulation_SimulationServiceError(t *testing.T) {
@@ -394,9 +398,10 @@ func TestGetMatchResults_MissingAppContext(t *testing.T) {
 	c.SetRequest(c.Request().WithContext(ctx))
 
 	// Execute and expect panic due to type assertion
-	assert.Panics(t, func() {
-		GetMatchResults(c)
-	}, "Should panic when app context is nil")
+	assert.Panics(
+		t, func() {
+			GetMatchResults(c)
+		}, "Should panic when app context is nil")
 }
 
 func TestGetMatchResults_RepositoryError(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	appContext "league-sim/internal/contexts/appContexts"
+	appContext "league-sim/internal/appContext/appContexts"
 	"league-sim/internal/models"
 	"league-sim/internal/repositories/interfaces"
 
@@ -38,7 +38,8 @@ func (m *MockAppContext) DB() *appContext.DB {
 }
 
 // Helper function to create a test AppContext with mock repositories
-func createTestAppContext(activeLeagueRepo interfaces.ActiveLeagueRepository, matchResultRepo interfaces.MatchResultRepository) *MockAppContext {
+func createTestAppContext(activeLeagueRepo interfaces.ActiveLeagueRepository,
+	matchResultRepo interfaces.MatchResultRepository) *MockAppContext {
 	mockAppCtx := &MockAppContext{}
 	mockAppCtx.On("ActiveLeagueRepository").Return(activeLeagueRepo)
 	mockAppCtx.On("MatchResultRepository").Return(matchResultRepo)
@@ -157,9 +158,18 @@ func TestSimulationService_Simulation_AllWeeks_Success(t *testing.T) {
 			{Name: "Team C", AttackPower: 75, DefensePower: 85, Stamina: 75, Morale: 85},
 		},
 		Standings: []models.Standings{
-			{Team: models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80}, Points: 0, Played: 0},
-			{Team: models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75}, Points: 0, Played: 0},
-			{Team: models.Team{Name: "Team C", AttackPower: 75, DefensePower: 85, Stamina: 75, Morale: 85}, Points: 0, Played: 0},
+			{
+				Team:   models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80},
+				Points: 0, Played: 0,
+			},
+			{
+				Team:   models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
+				Points: 0, Played: 0,
+			},
+			{
+				Team:   models.Team{Name: "Team C", AttackPower: 75, DefensePower: 85, Stamina: 75, Morale: 85},
+				Points: 0, Played: 0,
+			},
 		},
 		UpcomingFixtures: []models.Week{
 			{
@@ -254,8 +264,14 @@ func TestSimulationService_Simulation_EmptyUpcomingFixtures(t *testing.T) {
 			{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
 		},
 		Standings: []models.Standings{
-			{Team: models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80}, Points: 0, Played: 0},
-			{Team: models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75}, Points: 0, Played: 0},
+			{
+				Team:   models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80},
+				Points: 0, Played: 0,
+			},
+			{
+				Team:   models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
+				Points: 0, Played: 0,
+			},
 		},
 		UpcomingFixtures: []models.Week{}, // Empty upcoming fixtures
 		PlayedFixtures:   []models.Week{},
@@ -296,8 +312,14 @@ func TestSimulationService_Simulation_SetActiveLeagueError(t *testing.T) {
 			{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
 		},
 		Standings: []models.Standings{
-			{Team: models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80}, Points: 0, Played: 0},
-			{Team: models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75}, Points: 0, Played: 0},
+			{
+				Team:   models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80},
+				Points: 0, Played: 0,
+			},
+			{
+				Team:   models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
+				Points: 0, Played: 0,
+			},
 		},
 		UpcomingFixtures: []models.Week{
 			{
@@ -323,9 +345,10 @@ func TestSimulationService_Simulation_SetActiveLeagueError(t *testing.T) {
 	service := NewSimulationService(mockAppCtx)
 
 	// Execute and expect panic
-	assert.Panics(t, func() {
-		service.Simulation(leagueId, false)
-	}, "Should panic when SetActiveLeague fails")
+	assert.Panics(
+		t, func() {
+			service.Simulation(leagueId, false)
+		}, "Should panic when SetActiveLeague fails")
 
 	// Verify mock expectations
 	mockAppCtx.AssertExpectations(t)
@@ -597,7 +620,9 @@ func TestSimulationService_EditMatch_DetailedWinScenario(t *testing.T) {
 		},
 		Standings: []models.Standings{
 			{
-				Team:    models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+				Team: models.Team{
+					Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale,
+				},
 				Points:  1,
 				Wins:    0,
 				Losses:  0,
@@ -605,7 +630,9 @@ func TestSimulationService_EditMatch_DetailedWinScenario(t *testing.T) {
 				Against: 3,
 			},
 			{
-				Team:    models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+				Team: models.Team{
+					Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale,
+				},
 				Points:  1,
 				Wins:    0,
 				Losses:  0,
@@ -676,7 +703,9 @@ func TestSimulationService_EditMatch_DetailedDrawScenario(t *testing.T) {
 		},
 		Standings: []models.Standings{
 			{
-				Team:    models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale},
+				Team: models.Team{
+					Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: initialTeamAMorale,
+				},
 				Points:  0,
 				Wins:    0,
 				Losses:  1,
@@ -684,7 +713,9 @@ func TestSimulationService_EditMatch_DetailedDrawScenario(t *testing.T) {
 				Against: 2,
 			},
 			{
-				Team:    models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale},
+				Team: models.Team{
+					Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: initialTeamBMorale,
+				},
 				Points:  3,
 				Wins:    1,
 				Losses:  0,
@@ -873,8 +904,14 @@ func BenchmarkSimulationService_Simulation(b *testing.B) {
 			{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
 		},
 		Standings: []models.Standings{
-			{Team: models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80}, Points: 0, Played: 0},
-			{Team: models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75}, Points: 0, Played: 0},
+			{
+				Team:   models.Team{Name: "Team A", AttackPower: 80, DefensePower: 80, Stamina: 80, Morale: 80},
+				Points: 0, Played: 0,
+			},
+			{
+				Team:   models.Team{Name: "Team B", AttackPower: 85, DefensePower: 75, Stamina: 85, Morale: 75},
+				Points: 0, Played: 0,
+			},
 		},
 		UpcomingFixtures: []models.Week{
 			{

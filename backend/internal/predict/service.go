@@ -2,25 +2,26 @@ package predict
 
 import (
 	"fmt"
-
 	"league-sim/config"
-	appContext "league-sim/internal/contexts/appContexts"
+	adaptInterface "league-sim/internal/layers/adapt/interfaces"
 	"league-sim/internal/league"
 	"league-sim/internal/models"
+	"league-sim/internal/predict/interfaces"
+	repoInterfaces "league-sim/internal/repositories/interfaces"
 )
 
 type Predict struct {
-	appCtx appContext.AppContext
+	activeLeagueRepo repoInterfaces.ActiveLeagueRepository
 }
 
-func NewPredictService(ctx appContext.AppContext) *Predict {
+func NewPredictService(adap adaptInterface.AdaptInterface) interfaces.PredictServiceInterface {
 	return &Predict{
-		appCtx: ctx,
+		activeLeagueRepo: adap.ActiveLeagueRepository(),
 	}
 }
 
 func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStanding, error) {
-	standings, err := a.appCtx.ActiveLeagueRepository().GetActiveLeaguesStandings(id)
+	standings, err := a.activeLeagueRepo.GetActiveLeaguesStandings(id)
 
 	if err != nil {
 		fmt.Println("Error getting league standings:", err)
