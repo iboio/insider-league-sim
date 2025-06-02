@@ -51,14 +51,14 @@ export const Predictions = ({predictions}: PredictionsProps) => {
                         <TableBody>
                             {sortedPredictions.map((team, index) => (
                                 <TableRow
-                                    key={`${team.team_name}-${index}`}
+                                    key={`${team.teamName}-${index}`}
                                     className={`hover:bg-gray-50 ${index === 0 ? 'bg-purple-50' : ''}`}
                                 >
                                     <TableCell className="text-sm text-center font-medium text-gray-700 py-3">
                                         {index + 1}
                                     </TableCell>
                                     <TableCell className="text-sm font-medium py-3 text-center">
-                                        {team.team_name}
+                                        {team.teamName}
                                     </TableCell>
                                     <TableCell className="text-sm text-center py-3">
                         <span className={`font-semibold px-2 py-1 rounded-full ${

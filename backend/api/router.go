@@ -44,12 +44,12 @@ func StartServer(appCtx appContext.AppContext) error {
 	e.Use(handler.ContextMiddleware(appCtx))
 	v1 := e.Group("/api/v1")
 
-	v1.GET("/league", handler.GetLeagueIds)                           // Get all league IDs
-	v1.GET("/league/:leagueId/standing", handler.GetStanding)         // Get league standing by ID
-	v1.GET("/league/:leagueId/fixtures", handler.GetFixtures)         // Get fixtures for a league by ID
-	v1.GET("/league/:leagueId/predict", handler.GetPredictTable)      // Get simulation results for a league by ID
-	v1.GET("/league/:leagueId/matchResults", handler.GetMatchResults) // Get match results for a league by ID
-	
+	v1.GET("/league", handler.GetLeagueIds)                       // Get all league IDs
+	v1.GET("/league/:leagueId/standing", handler.GetStanding)     // Get league standing by ID
+	v1.GET("/league/:leagueId/fixtures", handler.GetFixtures)     // Get fixtures for a league by ID
+	v1.GET("/league/:leagueId/predict", handler.GetPredictTable)  // Get simulation results for a league by ID
+	v1.GET("/league/:leagueId/matches", handler.GetPlayedMatches) // Get match results for a league by ID
+
 	v1.POST("/league", handler.CreateLeague)                         // Create a new league
 	v1.POST("/league/:leagueId/simulation", handler.StartSimulation) // Start a league simulation
 	v1.POST("/league/:leagueId/reset", handler.ResetLeague)          // Create fixtures for a league by ID

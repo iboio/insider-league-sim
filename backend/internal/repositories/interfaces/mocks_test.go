@@ -21,9 +21,9 @@ func TestMockActiveLeagueRepository_ImplementsInterface(t *testing.T) {
 }
 
 func TestMockMatchResultRepository_ImplementsInterface(t *testing.T) {
-	// Test that MockMatchResultRepository implements MatchResultRepository interface
-	var _ MatchResultRepository = (*MockMatchResultRepository)(nil)
-	assert.True(t, true, "MockMatchResultRepository implements MatchResultRepository interface")
+	// Test that MockMatchResultRepository implements MatchesRepository interface
+	var _ MatchesRepository = (*MockMatchResultRepository)(nil)
+	assert.True(t, true, "MockMatchResultRepository implements MatchesRepository interface")
 }
 
 func TestMockLeagueRepository_SetLeague(t *testing.T) {
@@ -133,7 +133,7 @@ func TestMockMatchResultRepository_SetMatchResults(t *testing.T) {
 
 	// Setup expectations
 	testLeagueID := "test-league-id"
-	testResults := []models.MatchResult{}
+	testResults := []models.Matches{}
 	mockRepo.On("SetMatchResults", testLeagueID, testResults).Return(nil)
 
 	// Call method
@@ -150,7 +150,7 @@ func TestMockMatchResultRepository_GetMatchResults(t *testing.T) {
 
 	// Setup expectations
 	testLeagueID := "test-league-id"
-	expectedResults := []models.MatchResult{}
+	expectedResults := []models.Matches{}
 	mockRepo.On("GetMatchResults", testLeagueID).Return(expectedResults, nil)
 
 	// Call method

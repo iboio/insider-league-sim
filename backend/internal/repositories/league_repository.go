@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"league-sim/internal/layers/infra"
 
 	"league-sim/internal/models"
@@ -18,10 +19,10 @@ func NewLeagueRepository(db *infra.Infra) interfaces.LeagueRepository {
 	}
 }
 
-func (lr *leagueRepository) SetLeague(id string, data models.CreateLeagueRequest) error {
-	query := `INSERT INTO league (leagueId, name) VALUES (?,?)`
+func (lr *leagueRepository) SetLeague(data models.CreateLeagueRequest) error {
+	query := `INSERT INTO league (leagueId, name, teamCount) VALUES (?,?,?)`
 
-	_, err := lr.db.Exec(query, id, data.LeagueName)
+	_, err := lr.db.Exec(query, data.LeagueId, data.LeagueName, data.TeamCount)
 
 	if err != nil {
 
@@ -31,7 +32,26 @@ func (lr *leagueRepository) SetLeague(id string, data models.CreateLeagueRequest
 	return nil
 }
 
-func (lr *leagueRepository) GetLeague() ([]models.GetLeaguesIdsWithNameResponse, error) {
+func (lr *leagueRepository) GetLeagueById(id string) (models.CreateLeagueRequest, error) {
+	query := `SELECT leagueId, name, teamCount FROM league WHERE leagueId = ?`
+
+	row := lr.db.QueryRow(query, id)
+
+	var league models.CreateLeagueRequest
+	err := row.Scan(&league.LeagueId, &league.LeagueName, &league.TeamCount)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.CreateLeagueRequest{}, nil
+		}
+		return models.CreateLeagueRequest{}, err
+	}
+
+	return league, nil
+
+}
+
+func (lr *leagueRepository) GetLeagues() ([]models.GetLeaguesIdsWithNameResponse, error) {
 	query := `SELECT leagueId, name FROM league`
 
 	rows, err := lr.db.Query(query)

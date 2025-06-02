@@ -10,7 +10,7 @@ func TeamGenerate(n int) []models.Team {
 	teams := make([]models.Team, n)
 	for i := 0; i < n; i++ {
 		teams[i] = models.Team{
-			Name:         fmt.Sprintf("Team %c", 'A'+i),
+			TeamName:     fmt.Sprintf("Team %c", 'A'+i),
 			AttackPower:  RandomNumberGenerator(70, 100),
 			DefensePower: RandomNumberGenerator(70, 100),
 			Stamina:      RandomNumberGenerator(70, 100),
@@ -21,28 +21,9 @@ func TeamGenerate(n int) []models.Team {
 	return teams
 }
 
-func CreateStandingsTable(teams []models.Team) []models.Standings {
-	var standings []models.Standings
-
-	for _, teamData := range teams {
-		standings = append(
-			standings, models.Standings{
-				Team:    teamData,
-				Goals:   0,
-				Against: 0,
-				Played:  0,
-				Wins:    0,
-				Losses:  0,
-				Points:  0,
-			})
-	}
-
-	return standings
-}
-
 func GenerateFixtures(teams []models.Team) []models.Week {
 	if len(teams)%2 != 0 {
-		teams = append(teams, models.Team{Name: "BYE"})
+		teams = append(teams, models.Team{TeamName: "BYE"})
 	}
 
 	n := len(teams)
@@ -61,8 +42,8 @@ func GenerateFixtures(teams []models.Team) []models.Week {
 		for i := 0; i < half; i++ {
 			home := &teams[teamIndexes[i]]
 			away := &teams[teamIndexes[n-1-i]]
-			if home.Name != "BYE" && away.Name != "BYE" {
-				matches = append(matches, models.Match{Home: home, Away: away})
+			if home.TeamName != "BYE" && away.TeamName != "BYE" {
+				matches = append(matches, models.Match{Home: home.TeamName, Away: away.TeamName})
 			}
 		}
 

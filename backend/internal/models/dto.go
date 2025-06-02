@@ -1,6 +1,7 @@
 package models
 
 type CreateLeagueRequest struct {
+	LeagueId   string `json:"leagueId"`
 	LeagueName string `json:"leagueName"`
 	TeamCount  string `json:"teamCount"`
 }
@@ -12,7 +13,7 @@ type GetLeaguesIdsWithNameResponse struct {
 type GetActiveLeagueStandingsResponse struct {
 	Standings []Standings `json:"standings"`
 }
-type GetActiveLeagueFixturesResponse struct {
+type GetFixturesResponse struct {
 	UpcomingFixtures []Week `json:"upcomingFixtures"`
 	PlayedFixtures   []Week `json:"playedFixtures"`
 }
@@ -32,7 +33,7 @@ type SimulateLeagueRequest struct {
 }
 
 type SimulationResponse struct {
-	Matches          []MatchResult `json:"matches"`
-	UpcomingFixtures []Week        `json:"upcomingFixtures"`
-	PlayedFixtures   []Week        `json:"playedFixtures"`
+	Matches          []Matches `json:"matches"`
+	UpcomingFixtures []Week    `json:"upcomingFixtures"`
+	PlayedFixtures   []Week    `json:"playedFixtures"`
 }

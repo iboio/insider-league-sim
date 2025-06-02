@@ -7,18 +7,20 @@ export interface Team {
 }
 
 export interface Standings {
-    team: Team;
+    teamName: string;
     goals: number;
     against: number;
     played: number;
     wins: number;
     losses: number;
     points: number;
+    draws: number;
+    diff: number;
 }
 
 export interface Match {
-    home: Team;
-    away: Team;
+    home: string;
+    away: string;
 }
 
 export interface Week {
@@ -27,7 +29,7 @@ export interface Week {
 }
 
 export interface PredictedStanding {
-    team_name: string;
+    teamName: string;
     points: number;
     strength: number;
     odds: number;

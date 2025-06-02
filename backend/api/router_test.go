@@ -37,12 +37,12 @@ func (m *MockAppContext) ActiveLeagueRepository() interfaces.ActiveLeagueReposit
 	return args.Get(0).(interfaces.ActiveLeagueRepository)
 }
 
-func (m *MockAppContext) MatchResultRepository() interfaces.MatchResultRepository {
+func (m *MockAppContext) MatchResultRepository() interfaces.MatchesRepository {
 	args := m.Called()
 	if args.Get(0) == nil {
 		return nil
 	}
-	return args.Get(0).(interfaces.MatchResultRepository)
+	return args.Get(0).(interfaces.MatchesRepository)
 }
 
 func (m *MockAppContext) DB() *appContext.DB {
@@ -90,7 +90,7 @@ func setupMocks(mockAppCtx *MockAppContext, mockService *MockService) {
 	// Mock app context methods
 	mockAppCtx.On("LeagueRepository").Return(nil)
 	mockAppCtx.On("ActiveLeagueRepository").Return(nil)
-	mockAppCtx.On("MatchResultRepository").Return(nil)
+	mockAppCtx.On("MatchesRepository").Return(nil)
 	mockAppCtx.On("DB").Return(nil)
 }
 

@@ -22,7 +22,7 @@ func TestMockSimulationServiceInterface_Simulation(t *testing.T) {
 	testLeagueID := "test-league-id"
 	testPlayAllFixture := true
 	expectedResponse := models.SimulationResponse{
-		Matches: []models.MatchResult{
+		Matches: []models.Matches{
 			{
 				MatchWeek: 1,
 				Home:      "Team A",

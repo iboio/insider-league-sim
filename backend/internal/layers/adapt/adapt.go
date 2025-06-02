@@ -7,20 +7,23 @@ import (
 )
 
 type Adapt struct {
-	leagueRepository       repoInterfaces.LeagueRepository
-	activeLeagueRepository repoInterfaces.ActiveLeagueRepository
-	matchResultRepository  repoInterfaces.MatchResultRepository
+	leagueRepository   repoInterfaces.LeagueRepository
+	matchesRepository  repoInterfaces.MatchesRepository
+	standingRepository repoInterfaces.StandingRepository
+	teamsRepository    repoInterfaces.TeamsRepository
 }
 
 func BuildAdaptLayer(infra *infra.Infra) *Adapt {
-	newActiveLeagueRepo := repositories.NewActiveLeagueRepository(infra)
 	newLeagueRepo := repositories.NewLeagueRepository(infra)
-	newMatchResultRepo := repositories.NewMatchResultRepository(infra)
+	newMatchesRepo := repositories.NewMatchResultRepository(infra)
+	newStandingRepo := repositories.NewStandingRepository(infra)
+	teamsRepo := repositories.NewTeamsRepository(infra)
 
 	return &Adapt{
-		leagueRepository:       newLeagueRepo,
-		activeLeagueRepository: newActiveLeagueRepo,
-		matchResultRepository:  newMatchResultRepo,
+		leagueRepository:   newLeagueRepo,
+		matchesRepository:  newMatchesRepo,
+		standingRepository: newStandingRepo,
+		teamsRepository:    teamsRepo,
 	}
 }
 
@@ -28,10 +31,14 @@ func (a *Adapt) LeagueRepository() repoInterfaces.LeagueRepository {
 	return a.leagueRepository
 }
 
-func (a *Adapt) ActiveLeagueRepository() repoInterfaces.ActiveLeagueRepository {
-	return a.activeLeagueRepository
+func (a *Adapt) StandingsRepository() repoInterfaces.StandingRepository {
+	return a.standingRepository
 }
 
-func (a *Adapt) MatchResultRepository() repoInterfaces.MatchResultRepository {
-	return a.matchResultRepository
+func (a *Adapt) MatchesRepository() repoInterfaces.MatchesRepository {
+	return a.matchesRepository
+}
+
+func (a *Adapt) TeamRepository() repoInterfaces.TeamsRepository {
+	return a.teamsRepository
 }

@@ -239,7 +239,7 @@ function League() {
 
                             // Get the champion (first team after sorting)
                             const champion = sortedStandings[0];
-                            return champion ? `${champion.team.name} wins the league with ${champion.points} points and a goal difference of ${champion.goals - champion.against}!` : 'No champion determined';
+                            return champion ? `${champion.teamName} wins the league with ${champion.points} points and a goal difference of ${champion.goals - champion.against}!` : 'No champion determined';
                         })()}
                         <p className="text-white/60">If two teams have the same number of points, the one with the lower goal difference will be the champion.
                         </p>

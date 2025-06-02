@@ -99,7 +99,7 @@ func TestLeagueRepository_GetLeague_Success(t *testing.T) {
 		WillReturnRows(rows)
 
 	// Execute
-	result, err := repo.GetLeague()
+	result, err := repo.GetLeagues()
 
 	// Assert
 	assert.NoError(t, err)
@@ -121,7 +121,7 @@ func TestLeagueRepository_GetLeague_EmptyResult(t *testing.T) {
 		WillReturnRows(rows)
 
 	// Execute
-	result, err := repo.GetLeague()
+	result, err := repo.GetLeagues()
 
 	// Assert
 	assert.NoError(t, err)
@@ -142,9 +142,10 @@ func TestLeagueRepository_GetLeague_QueryError(t *testing.T) {
 		WillReturnError(expectedError)
 
 	// Execute and expect panic
-	assert.Panics(t, func() {
-		repo.GetLeague()
-	}, "Should panic when query fails")
+	assert.Panics(
+		t, func() {
+			repo.GetLeagues()
+		}, "Should panic when query fails")
 
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -164,9 +165,10 @@ func TestLeagueRepository_GetLeague_ScanError(t *testing.T) {
 		WillReturnRows(rows)
 
 	// Execute and expect panic
-	assert.Panics(t, func() {
-		repo.GetLeague()
-	}, "Should panic when scan fails")
+	assert.Panics(
+		t, func() {
+			repo.GetLeagues()
+		}, "Should panic when scan fails")
 
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -211,9 +213,10 @@ func TestLeagueRepository_DeleteLeague_DatabaseError(t *testing.T) {
 		WillReturnError(expectedError)
 
 	// Execute and expect panic
-	assert.Panics(t, func() {
-		repo.DeleteLeague(leagueId)
-	}, "Should panic when delete fails")
+	assert.Panics(
+		t, func() {
+			repo.DeleteLeague(leagueId)
+		}, "Should panic when delete fails")
 
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -281,7 +284,7 @@ func BenchmarkLeagueRepository_GetLeague(b *testing.B) {
 		mock.ExpectQuery("SELECT leagueId, name FROM league").
 			WillReturnRows(rows)
 
-		repo.GetLeague()
+		repo.GetLeagues()
 	}
 }
 

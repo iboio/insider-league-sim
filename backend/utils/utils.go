@@ -1,6 +1,9 @@
 package utils
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/google/uuid"
+)
 
 func StringToStruct[T any](data string) (T, error) {
 	var result T
@@ -17,4 +20,8 @@ func StructToString[T any](data T) string {
 	}
 
 	return string(bytes)
+}
+
+func GenerateUUV4() string {
+	return uuid.New().String()
 }

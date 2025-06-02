@@ -7,94 +7,114 @@ import (
 
 	"league-sim/internal/models"
 
-	"github.com/google/uuid"
 	adaptInterface "league-sim/internal/layers/adapt/interfaces"
 )
 
-type LeagueService struct {
-	leagueRepo       repoInterfaces.LeagueRepository
-	activeLeagueRepo repoInterfaces.ActiveLeagueRepository
-	matchResultRepo  repoInterfaces.MatchResultRepository
+type leagueService struct {
+	leagueRepo    repoInterfaces.LeagueRepository
+	matchesRepo   repoInterfaces.MatchesRepository
+	standingsRepo repoInterfaces.StandingRepository
+	teamsRepo     repoInterfaces.TeamsRepository
 }
 
 func NewLeagueService(adapt adaptInterface.AdaptInterface) interfaces.LeagueServiceInterface {
-	return &LeagueService{
-		leagueRepo:       adapt.LeagueRepository(),
-		activeLeagueRepo: adapt.ActiveLeagueRepository(),
-		matchResultRepo:  adapt.MatchResultRepository(),
+	return &leagueService{
+		leagueRepo:    adapt.LeagueRepository(),
+		matchesRepo:   adapt.MatchesRepository(),
+		standingsRepo: adapt.StandingsRepository(),
+		teamsRepo:     adapt.TeamRepository(),
 	}
 }
 
-func (ls *LeagueService) CreateLeague(n string, leagueName string) (models.GetLeaguesIdsWithNameResponse, error) {
-	i, err := strconv.Atoi(n)
+func (ls *leagueService) CreateLeague(data models.CreateLeagueRequest) (models.GetLeaguesIdsWithNameResponse, error) {
+	i, err := strconv.Atoi(data.TeamCount)
 
 	if err != nil {
 		return models.GetLeaguesIdsWithNameResponse{}, err
 	}
 
-	leagueId := uuid.New()
 	teams := TeamGenerate(i)
 	fixtures := GenerateFixtures(teams)
-	standings := CreateStandingsTable(teams)
-	league := models.League{
-		LeagueID:         leagueId.String(),
-		LeagueName:       leagueName,
-		Teams:            teams,
-		Standings:        standings,
-		TotalWeeks:       len(fixtures),
-		CurrentWeek:      0,
-		UpcomingFixtures: fixtures,
-		PlayedFixtures:   []models.Week{},
-	}
 
-	err = ls.leagueRepo.SetLeague(leagueId.String(), models.CreateLeagueRequest{LeagueName: leagueName})
+	err = ls.leagueRepo.SetLeague(
+		models.CreateLeagueRequest{
+			LeagueId:   data.LeagueId,
+			LeagueName: data.LeagueName,
+			TeamCount:  data.TeamCount,
+		})
 
 	if err != nil {
-
 		return models.GetLeaguesIdsWithNameResponse{}, err
 	}
 
-	err = ls.activeLeagueRepo.SetActiveLeague(league)
-
+	err = ls.SetMatches(data.LeagueId, &fixtures)
 	if err != nil {
+		return models.GetLeaguesIdsWithNameResponse{}, err
+	}
 
+	err = ls.SetStandings(data.LeagueId, &teams)
+	if err != nil {
+		return models.GetLeaguesIdsWithNameResponse{}, err
+	}
+
+	err = ls.teamsRepo.SetTeams(data.LeagueId, teams)
+	if err != nil {
 		return models.GetLeaguesIdsWithNameResponse{}, err
 	}
 
 	return models.GetLeaguesIdsWithNameResponse{
-		LeagueName: leagueName,
-		LeagueId:   leagueId.String(),
+		LeagueName: data.LeagueName,
+		LeagueId:   data.LeagueId,
 	}, nil
 }
 
-func (ls *LeagueService) ResetLeague(leagueId string) error {
-	league, err := ls.activeLeagueRepo.GetActiveLeague(leagueId)
-	if err != nil {
-
-		return err
+func (ls *leagueService) SetMatches(leagueId string, fixtures *[]models.Week) error {
+	var matches []models.Matches
+	for _, week := range *fixtures {
+		for _, match := range week.Matches {
+			matches = append(
+				matches, models.Matches{
+					LeagueId:  leagueId,
+					Home:      match.Home,
+					HomeScore: 0,
+					Away:      match.Away,
+					AwayScore: 0,
+					MatchWeek: week.Number,
+				})
+		}
 	}
 
-	teams := TeamGenerate(len(league.Teams))
-	fixtures := GenerateFixtures(teams)
-	standings := CreateStandingsTable(teams)
-	league.LeagueID = leagueId
-	league.Teams = teams
-	league.Standings = standings
-	league.TotalWeeks = len(fixtures)
-	league.CurrentWeek = 0
-	league.UpcomingFixtures = fixtures
-	league.PlayedFixtures = []models.Week{}
+	return ls.matchesRepo.SetMatches(matches)
+}
 
-	err = ls.activeLeagueRepo.SetActiveLeague(league)
+func (ls *leagueService) SetStandings(leagueId string, teams *[]models.Team) error {
+	var standings []models.Standings
+	for _, team := range *teams {
+		standings = append(
+			standings, models.Standings{
+				LeagueId: leagueId,
+				TeamName: team.TeamName,
+				Goals:    0,
+				Against:  0,
+				Played:   0,
+				Wins:     0,
+				Losses:   0,
+				Draws:    0,
+				Points:   0,
+			})
+	}
+	return ls.standingsRepo.SetStandings(standings)
+}
+
+func (ls *leagueService) ResetLeague(leagueId string) error {
+	result, err := ls.leagueRepo.GetLeagueById(leagueId)
 	if err != nil {
-
 		return err
 	}
-	err = ls.matchResultRepo.DeleteMatchResults(leagueId)
+	err = ls.leagueRepo.DeleteLeague(leagueId)
 	if err != nil {
-
 		return err
 	}
-
+	_, err = ls.CreateLeague(result)
 	return nil
 }

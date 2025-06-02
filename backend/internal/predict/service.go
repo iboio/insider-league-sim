@@ -11,21 +11,35 @@ import (
 )
 
 type Predict struct {
-	activeLeagueRepo repoInterfaces.ActiveLeagueRepository
+	matchResultRepo repoInterfaces.MatchesRepository
+	standingsRepo   repoInterfaces.StandingRepository
+	teamsRepo       repoInterfaces.TeamsRepository
 }
 
-func NewPredictService(adap adaptInterface.AdaptInterface) interfaces.PredictServiceInterface {
+func NewPredictService(adapt adaptInterface.AdaptInterface) interfaces.PredictServiceInterface {
 	return &Predict{
-		activeLeagueRepo: adap.ActiveLeagueRepository(),
+		matchResultRepo: adapt.MatchesRepository(),
+		standingsRepo:   adapt.StandingsRepository(),
+		teamsRepo:       adapt.TeamRepository(),
 	}
 }
 
-func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStanding, error) {
-	standings, err := a.activeLeagueRepo.GetActiveLeaguesStandings(id)
-
+func (a *Predict) PredictChampionShipSession(leagueId string) ([]models.PredictedStanding, error) {
+	standings, err := a.standingsRepo.GetStandings(leagueId)
 	if err != nil {
 		fmt.Println("Error getting league standings:", err)
 		return nil, err
+	}
+	teams, err := a.teamsRepo.GetTeams(leagueId)
+	if err != nil {
+		fmt.Println("Error getting teams:", err)
+		return nil, err
+	}
+
+	var teamMap = make(map[string]models.Team)
+
+	for _, team := range teams {
+		teamMap[team.TeamName] = team
 	}
 
 	if len(standings) == 0 {
@@ -45,24 +59,22 @@ func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStand
 		Played   int
 		Goals    int
 		Against  int
-		Team     models.Team
 	}
 
 	var scored []scoredTeam
 
 	for _, s := range standings {
-		str := league.CalculateStrength(s.Team)
+		str := league.CalculateStrength(teamMap[s.TeamName])
 		score := float64(s.Points)*config.WeightPoints + str*config.WeightsStrength
 		scored = append(
 			scored, scoredTeam{
-				TeamName: s.Team.Name,
+				TeamName: s.TeamName,
 				Score:    score,
 				Points:   s.Points,
 				Strength: str,
 				Played:   s.Played,
 				Goals:    s.Goals,
 				Against:  s.Against,
-				Team:     s.Team,
 			})
 		totalScore += score
 	}
@@ -141,7 +153,6 @@ func (a *Predict) PredictChampionShipSession(id string) ([]models.PredictedStand
 				Eliminated: eliminated,
 			})
 	}
-
 	return result, nil
 }
 
@@ -155,36 +166,4 @@ func findLeaderPoints(standings []models.Standings) int {
 	}
 
 	return maxPoint
-}
-
-func FindLeader(standings []models.Standings) models.Team {
-	var leader models.Team
-	if len(standings) == 0 {
-		return leader
-	}
-
-	leaderPoint := findLeaderPoints(standings)
-	var candidates []models.Standings
-
-	for _, s := range standings {
-		if s.Points == leaderPoint {
-			candidates = append(candidates, s)
-		}
-	}
-
-	if len(candidates) == 1 {
-		return candidates[0].Team
-	}
-
-	leader = candidates[0].Team
-	maxGoalDiff := candidates[0].Goals - candidates[0].Against
-
-	for _, s := range candidates[1:] {
-		currentDiff := s.Goals - s.Against
-		if currentDiff > maxGoalDiff {
-			leader = s.Team
-			maxGoalDiff = currentDiff
-		}
-	}
-	return leader
 }

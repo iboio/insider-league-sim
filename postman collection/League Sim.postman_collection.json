@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a27fb363-c3fd-4b1f-8998-dce529cdeeae",
+		"_postman_id": "1c53d82e-afb2-4d15-817f-018154a2a107",
 		"name": "League Sim",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20727282"
@@ -84,6 +84,29 @@
 			"response": []
 		},
 		{
+			"name": "Reset League",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"playAllFixture\": true\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/league/{{leagueId}}/reset",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"league",
+						"{{leagueId}}",
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "League IDs",
 			"request": {
 				"method": "GET",
@@ -158,19 +181,19 @@
 			"response": []
 		},
 		{
-			"name": "Match Results",
+			"name": "Matches",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/league/{{leagueId}}/matchResults",
+					"raw": "{{baseUrl}}/league/{{leagueId}}/matches",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"league",
 						"{{leagueId}}",
-						"matchResults"
+						"matches"
 					]
 				}
 			},

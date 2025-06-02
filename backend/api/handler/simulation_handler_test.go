@@ -37,9 +37,9 @@ func (m *MockAppContextSim) ActiveLeagueRepository() interfaces.ActiveLeagueRepo
 	return args.Get(0).(interfaces.ActiveLeagueRepository)
 }
 
-func (m *MockAppContextSim) MatchResultRepository() interfaces.MatchResultRepository {
+func (m *MockAppContextSim) MatchResultRepository() interfaces.MatchesRepository {
 	args := m.Called()
-	return args.Get(0).(interfaces.MatchResultRepository)
+	return args.Get(0).(interfaces.MatchesRepository)
 }
 
 func (m *MockAppContextSim) DB() *appContext.DB {
@@ -83,7 +83,7 @@ func TestStartSimulation_Success(t *testing.T) {
 
 	// Mock data
 	expectedResponse := models.SimulationResponse{
-		Matches: []models.MatchResult{
+		Matches: []models.Matches{
 			{
 				MatchWeek: 1,
 				Home:      "Team A",
@@ -144,7 +144,7 @@ func TestStartSimulation_PlayAllFixtures(t *testing.T) {
 
 	// Mock data
 	expectedResponse := models.SimulationResponse{
-		Matches: []models.MatchResult{
+		Matches: []models.Matches{
 			{MatchWeek: 1, Home: "Team A", HomeScore: 2, Away: "Team B", AwayScore: 1, Winner: "Team A"},
 			{MatchWeek: 2, Home: "Team C", HomeScore: 1, Away: "Team D", AwayScore: 3, Winner: "Team D"},
 		},
@@ -291,7 +291,7 @@ func TestStartSimulation_EmptyResponse(t *testing.T) {
 
 	// Mock data
 	emptyResponse := models.SimulationResponse{
-		Matches:          []models.MatchResult{},
+		Matches:          []models.Matches{},
 		UpcomingFixtures: []models.Week{},
 		PlayedFixtures:   []models.Week{},
 	}
@@ -336,7 +336,7 @@ func TestGetMatchResults_Success(t *testing.T) {
 	c.SetParamValues("test-league")
 
 	// Mock data
-	expectedResults := []models.MatchResult{
+	expectedResults := []models.Matches{
 		{
 			MatchWeek: 1,
 			Home:      "Team A",
@@ -358,7 +358,7 @@ func TestGetMatchResults_Success(t *testing.T) {
 	mockAppCtx := &MockAppContextSim{}
 
 	// Configure mocks
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 	mockMatchResultRepo.On("GetMatchResults", "test-league").Return(expectedResults, nil)
 
 	// Set context
@@ -373,7 +373,7 @@ func TestGetMatchResults_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	var response []models.MatchResult
+	var response []models.Matches
 	json.Unmarshal(rec.Body.Bytes(), &response)
 	assert.Equal(t, expectedResults, response)
 	assert.Len(t, response, 2)
@@ -419,8 +419,8 @@ func TestGetMatchResults_RepositoryError(t *testing.T) {
 	expectedError := errors.New("database connection failed")
 
 	// Configure mocks
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
-	mockMatchResultRepo.On("GetMatchResults", "test-league").Return([]models.MatchResult{}, expectedError)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
+	mockMatchResultRepo.On("GetMatchResults", "test-league").Return([]models.Matches{}, expectedError)
 
 	// Set context
 	ctx := c.Request().Context()
@@ -450,12 +450,12 @@ func TestGetMatchResults_EmptyResults(t *testing.T) {
 	c.SetParamValues("test-league")
 
 	// Mock data
-	emptyResults := []models.MatchResult{}
+	emptyResults := []models.Matches{}
 	mockMatchResultRepo := &interfaces.MockMatchResultRepository{}
 	mockAppCtx := &MockAppContextSim{}
 
 	// Configure mocks
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 	mockMatchResultRepo.On("GetMatchResults", "test-league").Return(emptyResults, nil)
 
 	// Set context
@@ -470,7 +470,7 @@ func TestGetMatchResults_EmptyResults(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	var response []models.MatchResult
+	var response []models.Matches
 	json.Unmarshal(rec.Body.Bytes(), &response)
 	assert.Equal(t, emptyResults, response)
 	assert.Empty(t, response)

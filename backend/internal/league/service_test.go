@@ -27,9 +27,9 @@ func (m *MockAppContext) ActiveLeagueRepository() interfaces.ActiveLeagueReposit
 	return args.Get(0).(interfaces.ActiveLeagueRepository)
 }
 
-func (m *MockAppContext) MatchResultRepository() interfaces.MatchResultRepository {
+func (m *MockAppContext) MatchResultRepository() interfaces.MatchesRepository {
 	args := m.Called()
-	return args.Get(0).(interfaces.MatchResultRepository)
+	return args.Get(0).(interfaces.MatchesRepository)
 }
 
 func (m *MockAppContext) DB() *appContext.DB {
@@ -276,7 +276,7 @@ func TestLeagueService_ResetLeague_Success(t *testing.T) {
 
 	// Configure mock expectations
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 
 	mockActiveLeagueRepo.On("GetActiveLeague", leagueId).Return(existingLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
@@ -382,7 +382,7 @@ func TestLeagueService_ResetLeague_DeleteMatchResultsError(t *testing.T) {
 
 	// Configure mock expectations
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 
 	mockActiveLeagueRepo.On("GetActiveLeague", leagueId).Return(existingLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
@@ -427,7 +427,7 @@ func TestLeagueService_ResetLeague_VerifyResetData(t *testing.T) {
 
 	// Configure mock expectations
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 
 	mockActiveLeagueRepo.On("GetActiveLeague", leagueId).Return(existingLeague, nil)
 
@@ -526,7 +526,7 @@ func BenchmarkLeagueService_ResetLeague(b *testing.B) {
 	}
 
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 	mockActiveLeagueRepo.On("GetActiveLeague", "test-league").Return(existingLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
 	mockMatchResultRepo.On("DeleteMatchResults", "test-league").Return(nil)

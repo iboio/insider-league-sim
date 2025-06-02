@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"league-sim/internal/appContext"
 	"league-sim/internal/models"
+	"league-sim/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -16,7 +17,7 @@ func GetLeagueIds(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	leagueIds, err := appCtx.Adapt.LeagueRepository().GetLeague()
+	leagueIds, err := appCtx.Adapt.LeagueRepository().GetLeagues()
 	if err != nil {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get league IDs")
@@ -37,7 +38,10 @@ func CreateLeague(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
 	}
 
-	result, err := appCtx.Service.LeagueService().CreateLeague(body.TeamCount, body.LeagueName)
+	leagueId := utils.GenerateUUV4()
+	body.LeagueId = leagueId
+
+	result, err := appCtx.Service.LeagueService().CreateLeague(body)
 
 	if err != nil {
 
@@ -55,7 +59,7 @@ func GetStanding(c echo.Context) error {
 	}
 
 	leagueId := c.Param("leagueId")
-	standings, err := appCtx.Adapt.ActiveLeagueRepository().GetActiveLeaguesStandings(leagueId)
+	standings, err := appCtx.Adapt.StandingsRepository().GetStandings(leagueId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -71,7 +75,7 @@ func GetFixtures(c echo.Context) error {
 	}
 
 	leagueId := c.Param("leagueId")
-	fixtures, err := appCtx.Adapt.ActiveLeagueRepository().GetActiveLeaguesFixtures(leagueId)
+	fixtures, err := appCtx.Adapt.MatchesRepository().GetFixtures(leagueId)
 
 	if err != nil {
 
@@ -137,4 +141,24 @@ func ResetLeague(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "League reset successfully")
+}
+
+func GetPlayedMatches(c echo.Context) error {
+	appCtxVal := c.Request().Context().Value("appContext")
+	appCtx, ok := appCtxVal.(appContext.AppContext)
+
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
+	}
+
+	leagueId := c.Param("leagueId")
+
+	playedMatches, err := appCtx.Adapt.MatchesRepository().GetPlayedMatches(leagueId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get played matches", err)
+	}
+	if len(playedMatches) == 0 {
+		return echo.NewHTTPError(http.StatusOK, []models.Matches{})
+	}
+	return c.JSON(http.StatusOK, playedMatches)
 }

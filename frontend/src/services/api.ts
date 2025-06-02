@@ -85,7 +85,7 @@ export async function getLeagueById(leagueId: string): Promise<LeagueData> {
         const predictionsResponse = await api.get<PredictedStanding[]>(`/league/${leagueId}/predict`);
 
         // Get matches
-        const matchResponse = await api.get<MatchResult[]>(`/league/${leagueId}/matchResults`);
+        const matchResponse = await api.get<MatchResult[]>(`/league/${leagueId}/matches`);
 
         return {
             currentWeek: 0,

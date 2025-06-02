@@ -18,7 +18,7 @@ func TestNewMatchResultRepository(t *testing.T) {
 
 	repo := NewMatchResultRepository(db)
 	assert.NotNil(t, repo)
-	assert.Implements(t, (*interfaces.MatchResultRepository)(nil), repo)
+	assert.Implements(t, (*interfaces.MatchesRepository)(nil), repo)
 }
 
 func TestMatchResultRepository_GetMatchResults_Success(t *testing.T) {
@@ -30,7 +30,7 @@ func TestMatchResultRepository_GetMatchResults_Success(t *testing.T) {
 
 	// Test data
 	leagueId := "test-league-id"
-	expectedResults := []models.MatchResult{
+	expectedResults := []models.Matches{
 		{
 			Home:      "Team A",
 			HomeScore: 2,
@@ -156,7 +156,7 @@ func TestMatchResultRepository_SetMatchResults_Success(t *testing.T) {
 
 	// Test data
 	leagueId := "test-league-id"
-	matchResults := []models.MatchResult{
+	matchResults := []models.Matches{
 		{
 			Home:      "Team A",
 			HomeScore: 2,
@@ -200,7 +200,7 @@ func TestMatchResultRepository_SetMatchResults_EmptyResults(t *testing.T) {
 
 	// Test data
 	leagueId := "test-league-id"
-	matchResults := []models.MatchResult{}
+	matchResults := []models.Matches{}
 
 	// Execute
 	err = repo.SetMatchResults(leagueId, matchResults)
@@ -218,7 +218,7 @@ func TestMatchResultRepository_SetMatchResults_DatabaseError(t *testing.T) {
 
 	// Test data
 	leagueId := "test-league-id"
-	matchResults := []models.MatchResult{
+	matchResults := []models.Matches{
 		{
 			Home:      "Team A",
 			HomeScore: 2,
@@ -419,7 +419,7 @@ func TestMatchResultRepository_SetMatchResults_SingleResult(t *testing.T) {
 
 	// Test data
 	leagueId := "test-league-id"
-	matchResults := []models.MatchResult{
+	matchResults := []models.Matches{
 		{
 			Home:      "Team A",
 			HomeScore: 1,
@@ -473,7 +473,7 @@ func BenchmarkMatchResultRepository_SetMatchResults(b *testing.B) {
 	defer db.Close()
 
 	repo := NewMatchResultRepository(db)
-	matchResults := []models.MatchResult{
+	matchResults := []models.Matches{
 		{
 			Home:      "Team A",
 			HomeScore: 2,
@@ -486,7 +486,14 @@ func BenchmarkMatchResultRepository_SetMatchResults(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		mock.ExpectExec("INSERT INTO match_results \\(leagueId, homeTeam, homeGoals, awayTeam, awayGoals, winnerName, matchWeek\\) VALUES \\(\\?, \\?, \\?, \\?, \\?, \\?, \\?\\)").
-			WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WithArgs(
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg(),
+				sqlmock.AnyArg()).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		repo.SetMatchResults("benchmark-league", matchResults)

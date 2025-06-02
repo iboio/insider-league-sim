@@ -27,9 +27,9 @@ func (m *MockAppContext) ActiveLeagueRepository() interfaces.ActiveLeagueReposit
 	return args.Get(0).(interfaces.ActiveLeagueRepository)
 }
 
-func (m *MockAppContext) MatchResultRepository() interfaces.MatchResultRepository {
+func (m *MockAppContext) MatchResultRepository() interfaces.MatchesRepository {
 	args := m.Called()
-	return args.Get(0).(interfaces.MatchResultRepository)
+	return args.Get(0).(interfaces.MatchesRepository)
 }
 
 func (m *MockAppContext) DB() *appContext.DB {
@@ -39,10 +39,10 @@ func (m *MockAppContext) DB() *appContext.DB {
 
 // Helper function to create a test AppContext with mock repositories
 func createTestAppContext(activeLeagueRepo interfaces.ActiveLeagueRepository,
-	matchResultRepo interfaces.MatchResultRepository) *MockAppContext {
+	matchResultRepo interfaces.MatchesRepository) *MockAppContext {
 	mockAppCtx := &MockAppContext{}
 	mockAppCtx.On("ActiveLeagueRepository").Return(activeLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(matchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(matchResultRepo)
 	return mockAppCtx
 }
 
@@ -110,7 +110,7 @@ func TestSimulationService_Simulation_SingleWeek_Success(t *testing.T) {
 	// Configure mock expectations
 	mockActiveLeagueRepo.On("GetActiveLeague", leagueId).Return(activeLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
-	mockMatchResultRepo.On("SetMatchResults", leagueId, mock.AnythingOfType("[]models.MatchResult")).Return(nil)
+	mockMatchResultRepo.On("SetMatchResults", leagueId, mock.AnythingOfType("[]models.Matches")).Return(nil)
 
 	// Create test AppContext
 	mockAppCtx := createTestAppContext(mockActiveLeagueRepo, mockMatchResultRepo)
@@ -198,7 +198,7 @@ func TestSimulationService_Simulation_AllWeeks_Success(t *testing.T) {
 	// Configure mock expectations
 	mockActiveLeagueRepo.On("GetActiveLeague", leagueId).Return(activeLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
-	mockMatchResultRepo.On("SetMatchResults", leagueId, mock.AnythingOfType("[]models.MatchResult")).Return(nil)
+	mockMatchResultRepo.On("SetMatchResults", leagueId, mock.AnythingOfType("[]models.Matches")).Return(nil)
 
 	// Create test AppContext
 	mockAppCtx := createTestAppContext(mockActiveLeagueRepo, mockMatchResultRepo)
@@ -372,7 +372,7 @@ func TestSimulationService_EditMatch_Success_Win(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -448,7 +448,7 @@ func TestSimulationService_EditMatch_Success_Draw(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -524,7 +524,7 @@ func TestSimulationService_EditMatch_MoraleCapLimits(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -600,7 +600,7 @@ func TestSimulationService_EditMatch_DetailedWinScenario(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -683,7 +683,7 @@ func TestSimulationService_EditMatch_DetailedDrawScenario(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -928,10 +928,10 @@ func BenchmarkSimulationService_Simulation(b *testing.B) {
 	}
 
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 	mockActiveLeagueRepo.On("GetActiveLeague", "test-league").Return(activeLeague, nil)
 	mockActiveLeagueRepo.On("SetActiveLeague", mock.AnythingOfType("models.League")).Return(nil)
-	mockMatchResultRepo.On("SetMatchResults", "test-league", mock.AnythingOfType("[]models.MatchResult")).Return(nil)
+	mockMatchResultRepo.On("SetMatchResults", "test-league", mock.AnythingOfType("[]models.Matches")).Return(nil)
 
 	service := NewSimulationService(mockAppCtx)
 
@@ -981,7 +981,7 @@ func TestSimulationService_EditMatch_GetActiveLeagueError(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -992,7 +992,7 @@ func TestSimulationService_EditMatch_GetActiveLeagueError(t *testing.T) {
 	expectedError := errors.New("league not found")
 
 	// Configure mock expectations
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
 	mockMatchResultRepo.On("GetMatchResultByWeekAndTeam", editData).Return(existingMatch, nil)
 	mockAppCtx.On("ActiveLeagueRepository").Return(mockActiveLeagueRepo)
 	mockActiveLeagueRepo.On("GetActiveLeague", editData.LeagueId).Return(models.League{}, expectedError)
@@ -1030,7 +1030,7 @@ func TestSimulationService_EditMatch_SetActiveLeagueError(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -1107,7 +1107,7 @@ func TestSimulationService_EditMatch_EditMatchScoreError(t *testing.T) {
 	}
 
 	// Existing match result that will be returned by GetMatchResultByWeekAndTeam
-	existingMatch := models.MatchResult{
+	existingMatch := models.Matches{
 		MatchWeek: 1,
 		Home:      "Team A",
 		Away:      "Team B",
@@ -1186,8 +1186,8 @@ func TestSimulationService_EditMatch_GetMatchResultError(t *testing.T) {
 	expectedError := errors.New("match not found")
 
 	// Configure mock expectations
-	mockAppCtx.On("MatchResultRepository").Return(mockMatchResultRepo)
-	mockMatchResultRepo.On("GetMatchResultByWeekAndTeam", editData).Return(models.MatchResult{}, expectedError)
+	mockAppCtx.On("MatchesRepository").Return(mockMatchResultRepo)
+	mockMatchResultRepo.On("GetMatchResultByWeekAndTeam", editData).Return(models.Matches{}, expectedError)
 
 	// Create service
 	service := NewSimulationService(mockAppCtx)

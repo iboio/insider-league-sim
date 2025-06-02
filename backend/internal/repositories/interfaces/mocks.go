@@ -46,9 +46,10 @@ func (m *MockActiveLeagueRepository) GetActiveLeagueTeams(id string) ([]models.T
 	return args.Get(0).([]models.Team), args.Error(1)
 }
 
-func (m *MockActiveLeagueRepository) GetActiveLeaguesFixtures(id string) (models.GetActiveLeagueFixturesResponse, error) {
+func (m *MockActiveLeagueRepository) GetActiveLeaguesFixtures(id string) (
+	models.GetFixturesResponse, error) {
 	args := m.Called(id)
-	return args.Get(0).(models.GetActiveLeagueFixturesResponse), args.Error(1)
+	return args.Get(0).(models.GetFixturesResponse), args.Error(1)
 }
 
 func (m *MockActiveLeagueRepository) GetActiveLeaguesStandings(id string) ([]models.Standings, error) {
@@ -56,7 +57,7 @@ func (m *MockActiveLeagueRepository) GetActiveLeaguesStandings(id string) ([]mod
 	return args.Get(0).([]models.Standings), args.Error(1)
 }
 
-// MockMatchResultRepository is a mock implementation of MatchResultRepository
+// MockMatchResultRepository is a mock implementation of MatchesRepository
 type MockMatchResultRepository struct {
 	mock.Mock
 }
@@ -66,14 +67,14 @@ func (m *MockMatchResultRepository) EditMatchScore(data models.EditMatchResult) 
 	return args.Error(0)
 }
 
-func (m *MockMatchResultRepository) SetMatchResults(leagueId string, matchResults []models.MatchResult) error {
+func (m *MockMatchResultRepository) SetMatchResults(leagueId string, matchResults []models.Matches) error {
 	args := m.Called(leagueId, matchResults)
 	return args.Error(0)
 }
 
-func (m *MockMatchResultRepository) GetMatchResults(leagueId string) ([]models.MatchResult, error) {
+func (m *MockMatchResultRepository) GetMatchResults(leagueId string) ([]models.Matches, error) {
 	args := m.Called(leagueId)
-	return args.Get(0).([]models.MatchResult), args.Error(1)
+	return args.Get(0).([]models.Matches), args.Error(1)
 }
 
 func (m *MockMatchResultRepository) DeleteMatchResults(leagueId string) error {
@@ -81,7 +82,7 @@ func (m *MockMatchResultRepository) DeleteMatchResults(leagueId string) error {
 	return args.Error(0)
 }
 
-func (m *MockMatchResultRepository) GetMatchResultByWeekAndTeam(data models.EditMatchResult) (models.MatchResult, error) {
+func (m *MockMatchResultRepository) GetMatchResultByWeekAndTeam(data models.EditMatchResult) (models.Matches, error) {
 	args := m.Called(data)
-	return args.Get(0).(models.MatchResult), args.Error(1)
+	return args.Get(0).(models.Matches), args.Error(1)
 }

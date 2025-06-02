@@ -37,6 +37,7 @@ export const StandingsTable = ({standings}: StandingsTableProps) => {
                                 <TableHead className="text-sm py-3 text-center font-semibold">Played</TableHead>
                                 <TableHead className="text-sm py-3 text-center font-semibold">Win</TableHead>
                                 <TableHead className="text-sm py-3 text-center font-semibold">Lose</TableHead>
+                                <TableHead className="text-sm py-3 text-center font-semibold">Draws</TableHead>
                                 <TableHead className="text-sm py-3 text-center font-semibold">Goal</TableHead>
                                 <TableHead className="text-sm py-3 text-center font-semibold">Against</TableHead>
                                 <TableHead className="text-sm py-3 text-center font-semibold">Diff</TableHead>
@@ -46,14 +47,14 @@ export const StandingsTable = ({standings}: StandingsTableProps) => {
                         <TableBody>
                             {sortedStandings.map((team, index) => (
                                 <TableRow
-                                    key={`${team.team.name}-${index}`}
+                                    key={`${team.teamName}-${index}`}
                                     className={`hover:bg-gray-50 ${index === 0 ? 'bg-green-50' : ''}`}
                                 >
                                     <TableCell className="text-sm text-center font-medium text-gray-700 py-3">
                                         {index + 1}
                                     </TableCell>
                                     <TableCell className="text-sm font-medium py-3">
-                                        {team.team.name}
+                                        {team.teamName}
                                     </TableCell>
                                     <TableCell className="text-sm text-center py-3">
                                         {team.played}
@@ -65,13 +66,16 @@ export const StandingsTable = ({standings}: StandingsTableProps) => {
                                         {team.losses}
                                     </TableCell>
                                     <TableCell className="text-sm text-center py-3">
+                                        {team.draws}
+                                    </TableCell>
+                                    <TableCell className="text-sm text-center py-3">
                                         {team.goals}
                                     </TableCell>
                                     <TableCell className="text-sm text-center py-3">
                                         {team.against}
                                     </TableCell>
                                     <TableCell className="text-sm text-center py-3">
-                                        {team.goals - team.against} </TableCell>
+                                        {team.diff} </TableCell>
                                     <TableCell className="text-sm text-center font-bold py-3 text-blue-600">
                                         {team.points}
                                     </TableCell>

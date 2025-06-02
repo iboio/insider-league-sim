@@ -73,7 +73,7 @@ func TestAppContextImpl_MatchResultRepository(t *testing.T) {
 		matchResultRepository: mockRepo,
 	}
 
-	// Test MatchResultRepository() method
+	// Test MatchesRepository() method
 	result := appCtx.MatchResultRepository()
 
 	assert.NotNil(t, result)

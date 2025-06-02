@@ -40,27 +40,6 @@ func StartSimulation(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func GetMatchResults(c echo.Context) error {
-	appCtxVal := c.Request().Context().Value("appContext")
-	appCtx, ok := appCtxVal.(appContext.AppContext)
-
-	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "App context missing")
-	}
-
-	leagueId := c.Param("leagueId")
-	matchResults, err := appCtx.Adapt.MatchResultRepository().GetMatchResults(leagueId)
-	if err != nil {
-	}
-
-	if err != nil {
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get match results: "+err.Error())
-	}
-
-	return c.JSON(http.StatusOK, matchResults)
-}
-
 func EditMatch(c echo.Context) error {
 	var body models.EditMatchResult
 
